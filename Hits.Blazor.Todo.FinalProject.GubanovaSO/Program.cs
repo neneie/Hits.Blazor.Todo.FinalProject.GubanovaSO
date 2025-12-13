@@ -7,20 +7,17 @@ using Hits.Blazor.Todo.FinalProject.GubanovaSO.Data;
 using Hits.Blazor.Todo.FinalProject.GubanovaSO.Models;
 using Hits.Blazor.Todo.FinalProject.GubanovaSO.Data.Services;
 
-var builder = WebApplicationBuilder.CreateBuilder(args);
+var builder = WebApplication.CreateBuilder(args);
 
-// 1?? Подключение строки БД
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
-// 2?? Добавление DbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
 builder.Services.AddDbContext<EducationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
-// 3?? Добавление Identity
 builder.Services.AddIdentityCore<ApplicationUser>(options =>
 {
     options.SignIn.RequireConfirmedAccount = false;
@@ -36,11 +33,9 @@ builder.Services.AddIdentityCore<ApplicationUser>(options =>
 .AddRoleManager<RoleManager<IdentityRole>>()
 .AddDefaultTokenProviders();
 
-// 4?? Добавление Razor Components
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-// 5?? Добавление сервисов
 builder.Services.AddScoped<CourseService>();
 builder.Services.AddScoped<LessonService>();
 builder.Services.AddScoped<TestService>();
@@ -48,7 +43,6 @@ builder.Services.AddScoped<EnrollmentService>();
 builder.Services.AddMemoryCache();
 builder.Services.AddHttpClient();
 
-// 6?? Добавление аутентификации
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<IdentityRevalidatingAuthenticationStateProvider>();
 builder.Services.AddScoped<AuthenticationStateProvider>(sp =>
@@ -56,7 +50,6 @@ builder.Services.AddScoped<AuthenticationStateProvider>(sp =>
 
 var app = builder.Build();
 
-// 7?? Выполнение миграций и создание ролей
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<EducationDbContext>();
@@ -74,10 +67,9 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-// 8?? Настройка middleware
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Error", createScopeForErrors: true);
+    app.UseExceptionHandler("/Error");
     app.UseHsts();
 }
 
@@ -88,7 +80,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseAntiforgery();
 
-// 9?? Маршруты
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
