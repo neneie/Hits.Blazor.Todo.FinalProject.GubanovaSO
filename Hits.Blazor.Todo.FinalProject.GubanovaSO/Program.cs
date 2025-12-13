@@ -2,102 +2,94 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Hits.Blazor.Todo.FinalProject.GubanovaSO.Components;
+using Hits.Blazor.Todo.FinalProject.GubanovaSO.Components.Account;
 using Hits.Blazor.Todo.FinalProject.GubanovaSO.Data;
+using Hits.Blazor.Todo.FinalProject.GubanovaSO.Models;
 using Hits.Blazor.Todo.FinalProject.GubanovaSO.Data.Services;
 
-namespace Hits.Blazor.Todo.FinalProject.GubanovaSO
+var builder = WebApplicationBuilder.CreateBuilder(args);
+
+// 1?? Подключение строки БД
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+
+// 2?? Добавление DbContext
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(connectionString));
+
+builder.Services.AddDbContext<EducationDbContext>(options =>
+    options.UseSqlServer(connectionString));
+
+// 3?? Добавление Identity
+builder.Services.AddIdentityCore<ApplicationUser>(options =>
 {
-    public class Program
+    options.SignIn.RequireConfirmedAccount = false;
+    options.Password.RequireDigit = false;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequireLowercase = false;
+    options.Password.RequiredLength = 6;
+})
+.AddRoles<IdentityRole>()
+.AddEntityFrameworkStores<ApplicationDbContext>()
+.AddSignInManager()
+.AddRoleManager<RoleManager<IdentityRole>>()
+.AddDefaultTokenProviders();
+
+// 4?? Добавление Razor Components
+builder.Services.AddRazorComponents()
+    .AddInteractiveServerComponents();
+
+// 5?? Добавление сервисов
+builder.Services.AddScoped<CourseService>();
+builder.Services.AddScoped<LessonService>();
+builder.Services.AddScoped<TestService>();
+builder.Services.AddScoped<EnrollmentService>();
+builder.Services.AddMemoryCache();
+builder.Services.AddHttpClient();
+
+// 6?? Добавление аутентификации
+builder.Services.AddCascadingAuthenticationState();
+builder.Services.AddScoped<IdentityRevalidatingAuthenticationStateProvider>();
+builder.Services.AddScoped<AuthenticationStateProvider>(sp =>
+    sp.GetRequiredService<IdentityRevalidatingAuthenticationStateProvider>());
+
+var app = builder.Build();
+
+// 7?? Выполнение миграций и создание ролей
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<EducationDbContext>();
+    dbContext.Database.Migrate();
+
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    string[] roles = { "Admin", "Instructor", "Student" };
+
+    foreach (var role in roles)
     {
-        public static void Main(string[] args)
+        if (!await roleManager.RoleExistsAsync(role))
         {
-            var builder = WebApplication.CreateBuilder(args);
-
-            // Add services to the container
-            builder.Services.AddRazorComponents()
-                .AddInteractiveServerComponents();
-
-            // Database contexts
-            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-                ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-
-            builder.Services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(connectionString));
-
-            builder.Services.AddDbContext<EducationDbContext>(options =>
-                options.UseSqlServer(connectionString));
-
-            // Application services
-            builder.Services.AddScoped<CourseService>();
-            builder.Services.AddScoped<LessonService>();
-            builder.Services.AddScoped<TestService>();
-            builder.Services.AddScoped<EnrollmentService>();
-            builder.Services.AddScoped<UserProgressService>();
-
-            // Identity
-            builder.Services.AddCascadingAuthenticationState();
-            builder.Services.AddScoped<IdentityUserAccessor>();
-            builder.Services.AddScoped<IdentityRedirectManager>();
-            builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
-
-            builder.Services.AddAuthentication(options =>
-            {
-                options.DefaultScheme = IdentityConstants.ApplicationScheme;
-                options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
-            })
-            .AddIdentityCookies();
-
-            builder.Services.AddDatabaseDeveloperPageExceptionFilter();
-
-            builder.Services.AddIdentityCore<ApplicationUser>(options =>
-                options.SignIn.RequireConfirmedAccount = true)
-                .AddRoles<IdentityRole>()
-                .AddEntityFrameworkStores<ApplicationDbContext>()
-                .AddSignInManager()
-                .AddRoleManager<RoleManager<IdentityRole>>()
-                .AddDefaultTokenProviders();
-
-            builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
-
-            var app = builder.Build();
-
-            // Configure the HTTP request pipeline
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseMigrationsEndPoint();
-            }
-            else
-            {
-                app.UseExceptionHandler("/Error");
-                app.UseHsts();
-            }
-
-            app.UseHttpsRedirection();
-            app.UseStaticFiles();
-            app.UseAntiforgery();
-
-            app.MapRazorComponents<App>()
-                .AddInteractiveServerRenderMode();
-
-            app.MapAdditionalIdentityEndpoints();
-
-            // Инициализация ролей
-            using (var scope = app.Services.CreateScope())
-            {
-                var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-
-                string[] roles = { "Admin", "Instructor", "Student" };
-
-                foreach (var role in roles)
-                {
-                    if (!roleManager.RoleExistsAsync(role).Result)
-                    {
-                        roleManager.CreateAsync(new IdentityRole(role)).Wait();
-                    }
-                }
-            }
-
-            app.Run();
+            await roleManager.CreateAsync(new IdentityRole(role));
         }
     }
 }
+
+// 8?? Настройка middleware
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/Error", createScopeForErrors: true);
+    app.UseHsts();
+}
+
+app.UseHttpsRedirection();
+app.UseStaticFiles();
+app.UseRouting();
+app.UseAuthentication();
+app.UseAuthorization();
+app.UseAntiforgery();
+
+// 9?? Маршруты
+app.MapRazorComponents<App>()
+    .AddInteractiveServerRenderMode();
+
+app.Run();
