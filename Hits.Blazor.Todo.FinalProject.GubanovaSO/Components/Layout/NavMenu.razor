@@ -1,32 +1,108 @@
-﻿<nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="/">Education Platform</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="/">Home</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/courses">Courses</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/profile">Profile</a>
-                </li>
-            </ul>
-        </div>
+﻿@inject NavigationManager Navigation
+
+<div class="sidebar">
+    <div class="sidebar-header">
+        <h3>Education Platform</h3>
     </div>
-</nav>
+
+    <nav class="sidebar-nav">
+        <ul class="nav-list">
+            <li>
+                <a href="/" class="nav-link @GetActiveClass("/")">
+                    <span class="nav-icon">H</span>
+                    <span class="nav-text">Главная</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="/courses" class="nav-link @GetActiveClass("/courses")">
+                    <span class="nav-icon">C</span>
+                    <span class="nav-text">Курсы</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="/my-learning" class="nav-link @GetActiveClass("/my-learning")">
+                    <span class="nav-icon">L</span>
+                    <span class="nav-text">Моё обучение</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="/achievements" class="nav-link @GetActiveClass("/achievements")">
+                    <span class="nav-icon">A</span>
+                    <span class="nav-text">Достижения</span>
+                </a>
+            </li>
+
+            <li class="nav-divider"></li>
+
+            <li class="nav-section-title">Администрирование</li>
+
+            <li>
+                <a href="/admin/dashboard" class="nav-link @GetActiveClass("/admin/dashboard")">
+                    <span class="nav-icon">D</span>
+                    <span class="nav-text">Панель</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="/admin/users" class="nav-link @GetActiveClass("/admin/users")">
+                    <span class="nav-icon">U</span>
+                    <span class="nav-text">Пользователи</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="/admin/statistics" class="nav-link @GetActiveClass("/admin/statistics")">
+                    <span class="nav-icon">S</span>
+                    <span class="nav-text">Статистика</span>
+                </a>
+            </li>
+
+            <li class="nav-divider"></li>
+
+            <li>
+                <a href="/profile" class="nav-link @GetActiveClass("/profile")">
+                    <span class="nav-icon">P</span>
+                    <span class="nav-text">Профиль</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="/settings" class="nav-link @GetActiveClass("/settings")">
+                    <span class="nav-icon">O</span>
+                    <span class="nav-text">Настройки</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="sidebar-footer">
+        <a href="/logout" class="nav-link logout-link">
+            <span class="nav-icon">X</span>
+            <span class="nav-text">Выход</span>
+        </a>
+    </div>
+</div>
 
 @code {
-    private bool collapseNavMenu = true;
-
-    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
-
-    private void ToggleNavMenu()
+    private string GetActiveClass(string path)
     {
-        collapseNavMenu = !collapseNavMenu;
+        var baseUri = Navigation.BaseUri.TrimEnd('/');
+        var current = Navigation.Uri.StartsWith(baseUri, StringComparison.OrdinalIgnoreCase)
+            ? Navigation.Uri.Substring(baseUri.Length)
+            : Navigation.Uri;
+
+        if (string.IsNullOrEmpty(current))
+            current = "/";
+
+        if (path == "/" && current == "/")
+            return "active";
+
+        if (path != "/" && current.StartsWith(path, StringComparison.OrdinalIgnoreCase))
+            return "active";
+
+        return string.Empty;
     }
 }

@@ -25,7 +25,6 @@ namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // Индексы
             modelBuilder.Entity<Enrollment>()
                 .HasIndex(e => new { e.UserId, e.CourseId })
                 .IsUnique();
@@ -36,7 +35,6 @@ namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Data
             modelBuilder.Entity<UserProgress>()
                 .HasIndex(up => new { up.UserId, up.LessonId });
 
-            // Каскадное удаление
             modelBuilder.Entity<Course>()
                 .HasMany(c => c.Lessons)
                 .WithOne(l => l.Course)
@@ -51,6 +49,16 @@ namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Data
                 .HasMany(q => q.Options)
                 .WithOne(qo => qo.Question)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<UserProgress>()
+                .HasOne(up => up.Lesson)
+                .WithMany()
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<TestResult>()
+                .HasOne(tr => tr.Test)
+                .WithMany()
+                .OnDelete(DeleteBehavior.NoAction);
         }
     }
 }

@@ -1,7 +1,185 @@
 ﻿@page "/"
+@using Hits.Blazor.Todo.FinalProject.GubanovaSO.Models
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Главная - Education Platform</PageTitle>
 
-<h1>Hello, world!</h1>
+<div class="hero-section">
+    <div class="hero-content">
+        <h1 class="hero-title">Добро пожаловать на Образовательную платформу!</h1>
+        <p class="hero-subtitle">Изучайте новые навыки, развивайтесь и достигайте целей</p>
+        <div class="hero-buttons">
+            <a href="/courses" class="btn btn-primary btn-lg">Обзор курсов</a>
+            <a href="/register" class="btn btn-outline-light btn-lg">Регистрация</a>
+        </div>
+    </div>
+</div>
 
-Welcome to your new app.
+<div class="features-section">
+    <div class="container">
+        <h2 class="section-title">Почему выбирают нас?</h2>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">Качественные курсы</div>
+                    <h3>Онлайн обучение</h3>
+                    <p>Профессиональные материалы от опытных преподавателей</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">Прогресс</div>
+                    <h3>Отслеживание прогресса</h3>
+                    <p>Следите за своими достижениями и получайте награды</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">Сертификаты</div>
+                    <h3>Официальные сертификаты</h3>
+                    <p>Получайте сертификаты о прохождении курсов</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="stats-section">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-md-3">
+                <div class="stat-item">
+                    <h3 class="stat-number">500+</h3>
+                    <p class="stat-label">Курсов</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-item">
+                    <h3 class="stat-number">10,000+</h3>
+                    <p class="stat-label">Студентов</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-item">
+                    <h3 class="stat-number">100+</h3>
+                    <p class="stat-label">Преподавателей</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-item">
+                    <h3 class="stat-number">98%</h3>
+                    <p class="stat-label">Удовлетворённость</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .hero-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 100px 20px;
+        text-align: center;
+        min-height: 500px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .hero-content {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .hero-title {
+        font-size: 3rem;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+
+    .hero-subtitle {
+        font-size: 1.5rem;
+        margin-bottom: 30px;
+        opacity: 0.9;
+    }
+
+    .hero-buttons {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .btn-outline-light {
+        border: 2px solid white;
+        color: white;
+        background: transparent;
+    }
+
+        .btn-outline-light:hover {
+            background: white;
+            color: #667eea;
+        }
+
+    .features-section {
+        padding: 80px 20px;
+        background: #f8f9fa;
+    }
+
+    .section-title {
+        text-align: center;
+        font-size: 2.5rem;
+        margin-bottom: 50px;
+        color: #333;
+    }
+
+    .feature-card {
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        text-align: center;
+        height: 100%;
+        transition: transform 0.3s;
+    }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+    .feature-icon {
+        font-size: 1.2rem;
+        margin-bottom: 20px;
+        color: #667eea;
+        font-weight: bold;
+    }
+
+    .feature-card h3 {
+        color: #667eea;
+        margin-bottom: 15px;
+    }
+
+    .stats-section {
+        padding: 60px 20px;
+        background: white;
+    }
+
+    .stat-item {
+        padding: 20px;
+    }
+
+    .stat-number {
+        font-size: 2.5rem;
+        color: #667eea;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+
+    .stat-label {
+        color: #666;
+        font-size: 1.1rem;
+    }
+</style>
+
+@code {
+}

@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Components.Authorization;
+﻿using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Hits.Blazor.Todo.FinalProject.GubanovaSO.Components;
@@ -18,6 +18,15 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddDbContext<EducationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
+// ✅ ДОБАВЬ ЭТО - Регистрация Authentication ПЕРЕД Identity
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultScheme = IdentityConstants.ApplicationScheme;
+    options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
+})
+.AddIdentityCookies();
+
+// Теперь Identity
 builder.Services.AddIdentityCore<ApplicationUser>(options =>
 {
     options.SignIn.RequireConfirmedAccount = false;
@@ -30,7 +39,6 @@ builder.Services.AddIdentityCore<ApplicationUser>(options =>
 .AddRoles<IdentityRole>()
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddSignInManager()
-.AddRoleManager<RoleManager<IdentityRole>>()
 .AddDefaultTokenProviders();
 
 builder.Services.AddRazorComponents()
@@ -49,7 +57,7 @@ builder.Services.AddScoped<AuthenticationStateProvider>(sp =>
     sp.GetRequiredService<IdentityRevalidatingAuthenticationStateProvider>());
 
 var app = builder.Build();
-
+/*
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<EducationDbContext>();
@@ -66,6 +74,7 @@ using (var scope = app.Services.CreateScope())
         }
     }
 }
+*/
 
 if (!app.Environment.IsDevelopment())
 {

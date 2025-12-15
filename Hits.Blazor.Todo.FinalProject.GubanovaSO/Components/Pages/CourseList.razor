@@ -1,0 +1,220 @@
+﻿@page "/courses"
+@using Hits.Blazor.Todo.FinalProject.GubanovaSO.Models
+@using Hits.Blazor.Todo.FinalProject.GubanovaSO.Data.Services
+@inject CourseService CourseService
+@inject NavigationManager Navigation
+
+<PageTitle>Курсы - Education Platform</PageTitle>
+
+<div class="courses-container">
+    <div class="courses-header">
+        <h1>Доступные курсы</h1>
+        <div class="search-box">
+            <input type="text" class="form-control" placeholder="Поиск курсов..."
+                   @oninput="SearchCourses" />
+        </div>
+    </div>
+
+    @if (courses == null)
+    {
+        <div class="alert alert-info">Загрузка курсов...</div>
+    }
+    else if (courses.Count == 0)
+    {
+        <div class="alert alert-warning">Курсы не найдены</div>
+    }
+    else
+    {
+        <div class="courses-grid">
+            @foreach (var course in courses)
+            {
+                <div class="course-card">
+                    @if (!string.IsNullOrEmpty(course.ImageUrl))
+                    {
+                        <img src="@course.ImageUrl" class="course-image" alt="@course.Title" />
+                    }
+                    else
+                    {
+                        <div class="course-image-placeholder">Нет изображения</div>
+                    }
+
+                    <div class="course-body">
+                        <h5 class="course-title">@course.Title</h5>
+                        <p class="course-description">@course.Description.Substring(0, Math.Min(80, course.Description.Length))...</p>
+
+                        <div class="course-meta">
+                            <span class="badge-difficulty">@GetDifficultyLevel(course.DifficultyLevel)</span>
+                            <span class="course-duration">@course.DurationHours ч.</span>
+                        </div>
+
+                        <div class="course-category">
+                            <small>@course.Category</small>
+                        </div>
+                    </div>
+
+                    <div class="course-footer">
+                        <button class="btn btn-primary btn-sm w-100"
+                                @onclick="() => ViewCourse(course.Id)">
+                            Подробнее
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<style>
+    .courses-container {
+        padding: 40px 20px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .courses-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 40px;
+        gap: 20px;
+    }
+
+        .courses-header h1 {
+            margin: 0;
+            color: #333;
+        }
+
+    .search-box {
+        min-width: 300px;
+    }
+
+    .courses-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 25px;
+    }
+
+    .course-card {
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        transition: transform 0.3s, box-shadow 0.3s;
+        display: flex;
+        flex-direction: column;
+    }
+
+        .course-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+        }
+
+    .course-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+    }
+
+    .course-image-placeholder {
+        width: 100%;
+        height: 200px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+    }
+
+    .course-body {
+        padding: 20px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .course-title {
+        margin: 0 0 10px 0;
+        color: #333;
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+
+    .course-description {
+        color: #666;
+        font-size: 0.9rem;
+        margin: 0 0 15px 0;
+        flex: 1;
+    }
+
+    .course-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .badge-difficulty {
+        background: #667eea;
+        color: white;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+
+    .course-duration {
+        color: #999;
+        font-size: 0.9rem;
+    }
+
+    .course-category {
+        color: #999;
+        font-size: 0.85rem;
+        margin-bottom: 15px;
+    }
+
+    .course-footer {
+        padding: 0 20px 20px 20px;
+    }
+
+    .btn-sm {
+        padding: 8px 16px;
+        font-size: 0.9rem;
+    }
+</style>
+
+@code {
+    private List<Course>? courses;
+
+    protected override async Task OnInitializedAsync()
+    {
+        courses = await CourseService.GetAllCoursesAsync();
+    }
+
+    private async Task SearchCourses(ChangeEventArgs e)
+    {
+        var searchTerm = e.Value?.ToString() ?? "";
+        if (string.IsNullOrWhiteSpace(searchTerm))
+        {
+            courses = await CourseService.GetAllCoursesAsync();
+        }
+        else
+        {
+            courses = await CourseService.SearchCoursesAsync(searchTerm);
+        }
+    }
+
+    private void ViewCourse(int courseId)
+    {
+        Navigation.NavigateTo($"/courses/{courseId}");
+    }
+
+    private string GetDifficultyLevel(int level) => level switch
+    {
+        1 => "Начинающий",
+        2 => "Средний",
+        3 => "Продвинутый",
+        _ => "Неизвестно"
+    };
+}
