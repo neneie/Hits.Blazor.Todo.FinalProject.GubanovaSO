@@ -22,7 +22,7 @@ namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Data
         public DbSet<UserAchievement> UserAchievements { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
+        {    
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<Enrollment>()
