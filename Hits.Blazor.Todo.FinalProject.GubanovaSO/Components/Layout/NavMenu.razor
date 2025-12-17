@@ -1,59 +1,40 @@
 ﻿@using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Identity
-@inject AuthenticationStateProvider AuthenticationStateProvider
-@inject NavigationManager Navigation
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="/">
-            <strong>Hits.Todo</strong>
-        </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <a class="navbar-brand" href="/">Hits.Todo</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item">
-                    <NavLink class="nav-link" href="/" Match="NavLinkMatch.All">
-                        Home
-                    </NavLink>
+                    <NavLink class="nav-link" href="/">Главная</NavLink>
                 </li>
                 <li class="nav-item">
-                    <NavLink class="nav-link" href="/courses">
-                        Courses
-                    </NavLink>
+                    <NavLink class="nav-link" href="/courses">Курсы</NavLink>
                 </li>
-
                 <AuthorizeView>
                     <Authorized>
                         <li class="nav-item">
-                            <NavLink class="nav-link" href="/my-learning">
-                                My Learning
-                            </NavLink>
+                            <NavLink class="nav-link" href="/my-learning">Мое обучение</NavLink>
                         </li>
                         <li class="nav-item">
-                            <NavLink class="nav-link" href="/profile">
-                                Profile
-                            </NavLink>
+                            <NavLink class="nav-link" href="/profile">Профиль</NavLink>
                         </li>
                         <li class="nav-item">
-                            <form method="post" action="Account/Logout" style="display:inline;">
-                                <button type="submit" class="nav-link btn btn-link" style="border: none; background: none; color: inherit; cursor: pointer;">
-                                    Logout
-                                </button>
+                            <form method="post" action="/Account/Logout" style="display:inline;">
+                                <button type="submit" class="nav-link btn btn-link" style="border:none;background:none;color:inherit;cursor:pointer;">Выход</button>
                             </form>
                         </li>
                     </Authorized>
                     <NotAuthorized>
                         <li class="nav-item">
-                            <NavLink class="nav-link" href="/register">
-                                Register
-                            </NavLink>
+                            <NavLink class="nav-link" href="/Account/Register">Регистрация</NavLink>
                         </li>
                         <li class="nav-item">
-                            <NavLink class="nav-link" href="/login">
-                                Login
-                            </NavLink>
+                            <NavLink class="nav-link" href="/Account/Login">Вход</NavLink>
                         </li>
                     </NotAuthorized>
                 </AuthorizeView>
@@ -61,7 +42,3 @@
         </div>
     </div>
 </nav>
-
-@code {
-
-}

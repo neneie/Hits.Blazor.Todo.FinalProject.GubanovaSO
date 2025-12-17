@@ -23,7 +23,6 @@ namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // Индексы для производительности
             modelBuilder.Entity<Enrollment>()
                 .HasIndex(e => new { e.UserId, e.CourseId })
                 .IsUnique();
@@ -34,7 +33,6 @@ namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Data
             modelBuilder.Entity<UserProgress>()
                 .HasIndex(up => new { up.UserId, up.LessonId });
 
-            // Отношения каскадного удаления
             modelBuilder.Entity<Course>()
                 .HasMany(c => c.Lessons)
                 .WithOne(l => l.Course)

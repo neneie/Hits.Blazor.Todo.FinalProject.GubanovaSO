@@ -5,87 +5,50 @@
 @inject CourseService CourseService
 @inject NavigationManager Navigation
 
-<PageTitle>Courses - Hits.Todo</PageTitle>
+<PageTitle>Курсы - Hits.Todo</PageTitle>
 
-<div class="container mt-5">
-    <div class="row mb-4">
-        <div class="col-md-8">
-            <h1>All Courses</h1>
-            <p class="text-muted">Choose an interesting course and start learning</p>
-        </div>
-        <div class="col-md-4">
-            <AuthorizeView Roles="Instructor,Admin">
-                <Authorized>
-                    <a href="/courses/create" class="btn btn-success btn-lg w-100">
-                        Create Course
-                    </a>
-                </Authorized>
-            </AuthorizeView>
-        </div>
-    </div>
+<div class="container mt-4">
+    <h2>Курсы</h2>
 
-    <div class="mb-3">
+    <div class="mb-3 d-flex justify-content-between align-items-center">
         <input type="text" 
-               class="form-control form-control-lg" 
-               placeholder="Search courses..." 
+               class="form-control" 
+               placeholder="Поиск курсов..." 
+               style="max-width: 300px;"
                @oninput="SearchCourses" />
+        <AuthorizeView Roles="Instructor,Admin">
+            <Authorized>
+                <a href="/courses/create" class="btn btn-success">Создать курс</a>
+            </Authorized>
+        </AuthorizeView>
     </div>
 
     @if (courses == null)
     {
-        <div class="alert alert-info">
-            <span class="spinner-border spinner-border-sm me-2"></span>
-            Loading courses...
-        </div>
+        <p>Загрузка...</p>
     }
     else if (courses.Count == 0)
     {
-        <div class="alert alert-warning">
-            No courses found. Try changing your search query.
-        </div>
+        <p class="text-muted">Курсы не найдены</p>
     }
     else
     {
         <div class="row">
             @foreach (var course in courses)
             {
-                <div class="col-md-6 col-lg-4 mb-4">
-                    <div class="card h-100 shadow-sm course-card">
-                        @if (!string.IsNullOrEmpty(course.ImageUrl))
-                        {
-                            <img src="@course.ImageUrl" class="card-img-top" alt="@course.Title" style="height: 200px; object-fit: cover;">
-                        }
-                        else
-                        {
-                            <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 200px;">
-                                <span class="text-white">No Image</span>
-                            </div>
-                        }
-                        
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100">
                         <div class="card-body">
                             <h5 class="card-title">@course.Title</h5>
-                            <p class="card-text text-muted">
-                                @if (course.Description.Length > 100)
-                                {
-                                    @(course.Description.Substring(0, 100) + "...")
-                                }
-                                else
-                                {
-                                    @course.Description
-                                }
-                            </p>
-                            
-                            <div class="mb-3">
+                            <p class="card-text text-muted small">@(course.Description.Length > 80 ? course.Description.Substring(0, 80) + "..." : course.Description)</p>
+                            <div class="mb-2">
                                 <span class="badge bg-primary">@GetDifficultyLevel(course.DifficultyLevel)</span>
-                                <span class="badge bg-info">@course.DurationHours hours</span>
-                                <span class="badge bg-secondary">@course.Lessons.Count lessons</span>
+                                <span class="badge bg-secondary">@course.DurationHours ч</span>
+                                <span class="badge">@course.Lessons.Count уроков</span>
                             </div>
                         </div>
-
-                        <div class="card-footer bg-white border-top">
-                            <a href="/courses/@course.Id" class="btn btn-primary w-100">
-                                View Details
-                            </a>
+                        <div class="card-footer bg-white">
+                            <a href="/courses/@course.Id" class="btn btn-primary btn-sm w-100">Подробнее</a>
                         </div>
                     </div>
                 </div>
@@ -94,28 +57,12 @@
     }
 </div>
 
-<style>
-    .course-card {
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-    .course-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2) !important;
-    }
-</style>
-
 @code {
     private List<Course>? courses;
     private List<Course>? allCourses;
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadCourses();
-    }
-
-    private async Task LoadCourses()
-    {
-        courses = null;
         allCourses = await CourseService.GetAllCoursesAsync();
         courses = allCourses;
     }
@@ -123,25 +70,16 @@
     private async Task SearchCourses(ChangeEventArgs e)
     {
         var searchTerm = e.Value?.ToString() ?? string.Empty;
-
-        if (string.IsNullOrWhiteSpace(searchTerm))
-        {
-            courses = allCourses;
-        }
-        else
-        {
-            courses = await CourseService.SearchCoursesAsync(searchTerm);
-        }
+        courses = string.IsNullOrWhiteSpace(searchTerm) 
+            ? allCourses 
+            : await CourseService.SearchCoursesAsync(searchTerm);
     }
 
-    private string GetDifficultyLevel(int level)
+    private string GetDifficultyLevel(int level) => level switch
     {
-        return level switch
-        {
-            1 => "Beginner",
-            2 => "Intermediate",
-            3 => "Advanced",
-            _ => "Unknown"
-        };
-    }
+        1 => "Начинающий",
+        2 => "Средний",
+        3 => "Продвинутый",
+        _ => "Неизвестно"
+    };
 }

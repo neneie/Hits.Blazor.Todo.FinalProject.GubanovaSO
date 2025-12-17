@@ -9,107 +9,88 @@
 @inject NavigationManager Navigation
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
-<PageTitle>Create Course - Hits.Todo</PageTitle>
+<PageTitle>Создать курс - Hits.Todo</PageTitle>
 
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow-lg">
-                <div class="card-header bg-success text-white">
-                    <h3 class="mb-0">Create New Course</h3>
-                </div>
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <h2>Создать новый курс</h2>
 
-                <div class="card-body">
-                    @if (!string.IsNullOrEmpty(errorMessage))
-                    {
-                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                            @errorMessage
-                            <button type="button" class="btn-close" @onclick="() => errorMessage = string.Empty"></button>
+            @if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <div class="alert alert-danger">@errorMessage</div>
+            }
+
+            @if (isSuccess)
+            {
+                <div class="alert alert-success">Курс создан! Перенаправляю...</div>
+            }
+            else
+            {
+                <EditForm Model="@courseModel" OnSubmit="@HandleCreateCourse">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary class="text-danger" />
+
+                    <div class="mb-3">
+                        <label class="form-label">Название</label>
+                        <InputText @bind-Value="courseModel.Title" class="form-control" />
+                        <ValidationMessage For="@(() => courseModel.Title)" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Описание</label>
+                        <InputTextArea @bind-Value="courseModel.Description" class="form-control" rows="4" />
+                        <ValidationMessage For="@(() => courseModel.Description)" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Категория</label>
+                        <InputText @bind-Value="courseModel.Category" class="form-control" />
+                        <ValidationMessage For="@(() => courseModel.Category)" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">URL изображения</label>
+                        <InputText @bind-Value="courseModel.ImageUrl" class="form-control" />
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Уровень</label>
+                            <InputSelect @bind-Value="courseModel.DifficultyLevel" class="form-control">
+                                <option value="1">Начинающий</option>
+                                <option value="2">Средний</option>
+                                <option value="3">Продвинутый</option>
+                            </InputSelect>
                         </div>
-                    }
-
-                    @if (isSuccess)
-                    {
-                        <div class="alert alert-success">
-                            Course created successfully! Redirecting...
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Часов</label>
+                            <InputNumber @bind-Value="courseModel.DurationHours" class="form-control" min="1" />
+                            <ValidationMessage For="@(() => courseModel.DurationHours)" />
                         </div>
-                    }
-                    else
-                    {
-                        <EditForm Model="@courseModel" OnSubmit="@HandleCreateCourse">
-                            <DataAnnotationsValidator />
+                    </div>
 
-                            <div class="mb-3">
-                                <label class="form-label">Course Title</label>
-                                <InputText class="form-control" @bind-Value="courseModel.Title" placeholder="Enter course title" />
-                                <ValidationMessage For="@(() => courseModel.Title)" />
-                            </div>
+                    <div class="mb-3 form-check">
+                        <InputCheckbox @bind-Value="courseModel.IsActive" class="form-check-input" id="isActive" />
+                        <label class="form-check-label" for="isActive">Активный курс</label>
+                    </div>
 
-                            <div class="mb-3">
-                                <label class="form-label">Description</label>
-                                <InputTextArea class="form-control" @bind-Value="courseModel.Description" placeholder="Describe the course" rows="4" />
-                                <ValidationMessage For="@(() => courseModel.Description)" />
-                            </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-success" disabled="@isLoading">
+                            @if (isLoading)
+                            {
+                                <span>Создаю...</span>
+                            }
+                            else
+                            {
 
-                            <div class="mb-3">
-                                <label class="form-label">Category</label>
-                                <InputText class="form-control" @bind-Value="courseModel.Category" placeholder="e.g. Programming, Design, etc." />
-                                <ValidationMessage For="@(() => courseModel.Category)" />
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">Image URL (optional)</label>
-                                <InputText type="url" class="form-control" @bind-Value="courseModel.ImageUrl" placeholder="https://example.com/image.jpg" />
-                            </div>
-
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Difficulty Level</label>
-                                    <InputSelect class="form-control" @bind-Value="courseModel.DifficultyLevel">
-                                        <option value="1">Beginner</option>
-                                        <option value="2">Intermediate</option>
-                                        <option value="3">Advanced</option>
-                                    </InputSelect>
-                                </div>
-
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Duration (hours)</label>
-                                    <InputNumber class="form-control" @bind-Value="courseModel.DurationHours" min="1" />
-                                    <ValidationMessage For="@(() => courseModel.DurationHours)" />
-                                </div>
-                            </div>
-
-                            <div class="mb-3">
-                                <div class="form-check">
-                                    <InputCheckbox class="form-check-input" @bind-Value="courseModel.IsActive" id="isActive" />
-                                    <label class="form-check-label" for="isActive">
-                                        Active Course
-                                    </label>
-                                </div>
-                            </div>
-
-                            <hr />
-
-                            <div class="d-flex gap-2">
-                                <button type="submit" class="btn btn-success" disabled="@isLoading">
-                                    @if (isLoading)
-                                    {
-                                        <span class="spinner-border spinner-border-sm me-2"></span>
-                                        <span>Creating</span>
-                                    }
-                                    else
-                                    {
-                                        <span>Create Course</span>
-                                    }
-                                </button>
-                                <a href="/courses" class="btn btn-secondary">
-                                    Cancel
-                                </a>
-                            </div>
-                        </EditForm>
-                    }
-                </div>
-            </div>
+                                <span>Создать</span>
+                            }
+                        </button>
+                        <a href="/courses" class="btn btn-secondary">Отмена</a>
+                    </div>
+                </EditForm>
+            }
         </div>
     </div>
 </div>
@@ -123,23 +104,23 @@
 
     private class CourseModel
     {
-        [Required(ErrorMessage = "Title is required")]
-        [StringLength(200, MinimumLength = 3, ErrorMessage = "Title must be between 3 and 200 characters")]
+        [Required(ErrorMessage = "Название обязательно")]
+        [StringLength(200, MinimumLength = 3)]
         public string Title { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Description is required")]
-        [StringLength(2000, MinimumLength = 10, ErrorMessage = "Description must be between 10 and 2000 characters")]
+        [Required(ErrorMessage = "Описание обязательно")]
+        [StringLength(2000, MinimumLength = 10)]
         public string Description { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Category is required")]
+        [Required(ErrorMessage = "Категория обязательна")]
         public string Category { get; set; } = string.Empty;
 
         public string? ImageUrl { get; set; }
 
-        [Range(1, 3, ErrorMessage = "Select difficulty level")]
+        [Range(1, 3)]
         public int DifficultyLevel { get; set; } = 1;
 
-        [Range(1, int.MaxValue, ErrorMessage = "Duration must be positive")]
+        [Range(1, int.MaxValue)]
         public int DurationHours { get; set; } = 1;
 
         public bool IsActive { get; set; } = true;
@@ -160,7 +141,7 @@
     {
         if (string.IsNullOrEmpty(instructorId))
         {
-            errorMessage = "Error: could not determine instructor";
+            errorMessage = "Ошибка: не удалось определить преподавателя";
             return;
         }
 
@@ -190,7 +171,7 @@
         }
         catch (Exception ex)
         {
-            errorMessage = $"Error creating course: {ex.Message}";
+            errorMessage = $"Ошибка: {ex.Message}";
         }
         finally
         {
