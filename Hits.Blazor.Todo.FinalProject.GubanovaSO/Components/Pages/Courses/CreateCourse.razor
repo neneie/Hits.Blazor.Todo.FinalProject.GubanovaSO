@@ -3,6 +3,7 @@
 @using Hits.Blazor.Todo.FinalProject.GubanovaSO.Data.Services
 @using System.ComponentModel.DataAnnotations
 @using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
 @attribute [Authorize(Roles = "Instructor,Admin")]
 @inject CourseService CourseService
 @inject NavigationManager Navigation
@@ -94,8 +95,8 @@
                                     @if (isLoading)
                                     {
                                         <span class="spinner-border spinner-border-sm me-2"></span>
-                                        Creating...
-                                                                }
+                                        <span>Creating</span>
+                                    }
                                     else
                                     {
                                         <span>Create Course</span>

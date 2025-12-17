@@ -2,6 +2,7 @@
 @using Hits.Blazor.Todo.FinalProject.GubanovaSO.Models
 @using Hits.Blazor.Todo.FinalProject.GubanovaSO.Data.Services
 @using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
 @inject CourseService CourseService
 @inject EnrollmentService EnrollmentService
 @inject NavigationManager Navigation
@@ -37,7 +38,7 @@ else
 
                     <div class="card-body">
                         <h1 class="card-title">@course.Title</h1>
-                        
+
                         <div class="mb-3">
                             <span class="badge bg-primary">@GetDifficultyLevel(course.DifficultyLevel)</span>
                             <span class="badge bg-info">@course.DurationHours hours</span>
@@ -102,7 +103,7 @@ else
                 <div class="card shadow-sm sticky-top" style="top: 20px;">
                     <div class="card-body">
                         <h4 class="card-title">Information</h4>
-                        
+
                         <div class="mb-3">
                             <strong>Category:</strong>
                             <p>@course.Category</p>
@@ -137,7 +138,7 @@ else
                                         @if (isLoading)
                                         {
                                             <span class="spinner-border spinner-border-sm me-2"></span>
-                                            Enrolling...
+                                            <span>Enrolling</span>
                                         }
                                         else
                                         {
@@ -187,7 +188,7 @@ else
         if (user.Identity?.IsAuthenticated == true)
         {
             userId = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-            
+
             if (!string.IsNullOrEmpty(userId))
             {
                 var enrollment = await EnrollmentService.GetEnrollmentAsync(userId, CourseId);

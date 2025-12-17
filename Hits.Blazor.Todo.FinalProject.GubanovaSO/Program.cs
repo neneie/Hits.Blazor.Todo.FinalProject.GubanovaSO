@@ -8,11 +8,9 @@ using Hits.Blazor.Todo.FinalProject.GubanovaSO.Data.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-// Database contexts
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
@@ -22,16 +20,14 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddDbContext<EducationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
-// Application services
 builder.Services.AddScoped<CourseService>();
 builder.Services.AddScoped<LessonService>();
 builder.Services.AddScoped<TestService>();
 builder.Services.AddScoped<EnrollmentService>();
 builder.Services.AddScoped<UserProgressService>();
 
-// Identity and Authentication
 builder.Services.AddCascadingAuthenticationState();
-builder.Services.AddScoped<AuthenticationStateProvider, PersistingRevalidatingAuthenticationStateProvider>();
+builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
 builder.Services.AddScoped<IdentityUserAccessor>();
 builder.Services.AddScoped<IdentityRedirectManager>();
 
@@ -51,11 +47,9 @@ builder.Services.AddIdentityCore<ApplicationUser>(options =>
 .AddDefaultTokenProviders();
 
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
-builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
 {
     app.UseMigrationsEndPoint();

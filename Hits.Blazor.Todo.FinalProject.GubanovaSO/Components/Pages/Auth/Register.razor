@@ -1,93 +1,66 @@
-﻿@page "/register"
+﻿@page "/Account/Register"
+
 @using System.ComponentModel.DataAnnotations
-@using EducationPlatform.Data
+@using System.Text
+@using System.Text.Encodings.Web
 @using Microsoft.AspNetCore.Identity
-@using Microsoft.EntityFrameworkCore
-@inject UserManager<IdentityUser> UserManager
-@inject NavigationManager Navigation
-@inject ApplicationDbContext DbContext
-@layout MainLayout
+@using Microsoft.AspNetCore.WebUtilities
+@using Hits.Blazor.Todo.FinalProject.GubanovaSO.Data
+
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+@inject ILogger<Register> Logger
+@inject NavigationManager NavigationManager
+@inject IdentityRedirectManager RedirectManager
+
+<PageTitle>Register</PageTitle>
 
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-6">
             <div class="card shadow-lg">
-                <div class="card-header bg-primary text-white">
-                    <h3 class="mb-0">📝 Регистрация</h3>
+                <div class="card-header bg-success text-white">
+                    <h2 class="mb-0">Create a new account</h2>
                 </div>
                 <div class="card-body">
-                    @if (!string.IsNullOrEmpty(ErrorMessage))
-                    {
-                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                            @ErrorMessage
-                            <button type="button" class="btn-close" @onclick="() => ErrorMessage = string.Empty"></button>
+                    <StatusMessage Message="@errorMessage" />
+                    <EditForm Model="Input" asp-route-returnUrl="@ReturnUrl" method="post" OnValidSubmit="RegisterUser" FormName="register">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary class="text-danger" role="alert" />
+                        
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Username</label>
+                            <InputText id="username" @bind-Value="Input.UserName" class="form-control" autocomplete="username" aria-required="true" />
+                            <ValidationMessage For="() => Input.UserName" class="text-danger" />
                         </div>
-                    }
 
-                    @if (IsRegistered)
-                    {
-                        <div class="alert alert-success">
-                            ✅ Регистрация успешна! Сейчас перенаправим вас...
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <InputText id="email" type="email" @bind-Value="Input.Email" class="form-control" autocomplete="username" aria-required="true" />
+                            <ValidationMessage For="() => Input.Email" class="text-danger" />
                         </div>
-                    }
-                    else
-                    {
-                        <EditForm Model="@registerModel" OnSubmit="@HandleRegister">
-                            <DataAnnotationsValidator />
 
-                            <div class="mb-3">
-                                <label class="form-label">Имя</label>
-                                <InputText class="form-control" @bind-Value="registerModel.FirstName" placeholder="Ваше имя" />
-                                <ValidationMessage For="@(() => registerModel.FirstName)" />
-                            </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password</label>
+                            <InputText id="password" type="password" @bind-Value="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" />
+                            <ValidationMessage For="() => Input.Password" class="text-danger" />
+                        </div>
 
-                            <div class="mb-3">
-                                <label class="form-label">Фамилия</label>
-                                <InputText class="form-control" @bind-Value="registerModel.LastName" placeholder="Ваша фамилия" />
-                                <ValidationMessage For="@(() => registerModel.LastName)" />
-                            </div>
+                        <div class="mb-3">
+                            <label for="confirm-password" class="form-label">Confirm password</label>
+                            <InputText id="confirm-password" type="password" @bind-Value="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" />
+                            <ValidationMessage For="() => Input.ConfirmPassword" class="text-danger" />
+                        </div>
 
-                            <div class="mb-3">
-                                <label class="form-label">Email</label>
-                                <InputText type="email" class="form-control" @bind-Value="registerModel.Email" placeholder="email@example.com" />
-                                <ValidationMessage For="@(() => registerModel.Email)" />
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">Пароль</label>
-                                <InputText type="password" class="form-control" @bind-Value="registerModel.Password" placeholder="Минимум 8 символов" />
-                                <ValidationMessage For="@(() => registerModel.Password)" />
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">Подтвердите пароль</label>
-                                <InputText type="password" class="form-control" @bind-Value="registerModel.ConfirmPassword" placeholder="Повторите пароль" />
-                                <ValidationMessage For="@(() => registerModel.ConfirmPassword)" />
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">О себе (опционально)</label>
-                                <InputTextArea class="form-control" @bind-Value="registerModel.Bio" placeholder="Расскажите о себе" rows="3" />
-                            </div>
-
-                            <button type="submit" class="btn btn-primary w-100 mb-2" disabled="@IsLoading">
-                                @if (IsLoading)
-                                {
-                                    <span class="spinner-border spinner-border-sm me-2"></span>
-                                    Регистрация...
-                                                        }
-                                else
-                                {
-                                    <span>✍️ Зарегистрироваться</span>
-                                }
-                            </button>
-                        </EditForm>
-
-                        <hr />
-                        <p class="text-center">
-                            Уже есть аккаунт? <a href="/login">Войдите здесь</a>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-success">Register</button>
+                        </div>
+                    </EditForm>
+                    <div class="mt-3">
+                        <p>
+                            <a href="@(NavigationManager.GetUriWithQueryParameters("Account/Login", new Dictionary<string, object?> { ["returnUrl"] = ReturnUrl }))">Log in instead</a>
                         </p>
-                    }
+                    </div>
                 </div>
             </div>
         </div>
@@ -95,73 +68,72 @@
 </div>
 
 @code {
-    private RegisterModel registerModel = new();
-    private string ErrorMessage = string.Empty;
-    private bool IsLoading = false;
-    private bool IsRegistered = false;
+    private IEnumerable<IdentityError>? identityErrors;
+    private string? errorMessage;
 
-    private class RegisterModel
+    [SupplyParameterFromForm]
+    public InputModel Input { get; set; } = new();
+
+    [SupplyParameterFromQuery]
+    public string? ReturnUrl { get; set; }
+
+    [CascadingParameter]
+    public HttpContext HttpContext { get; set; } = default!;
+
+    public async Task RegisterUser()
     {
-        public string FirstName { get; set; } = string.Empty;
-        public string LastName { get; set; } = string.Empty;
-        public string Email { get; set; } = string.Empty;
-        public string Password { get; set; } = string.Empty;
-        public string ConfirmPassword { get; set; } = string.Empty;
-        public string? Bio { get; set; }
+        var user = CreateUser();
+
+        user.UserName = Input.UserName;
+        user.Email = Input.Email;
+
+        var result = await UserManager.CreateAsync(user, Input.Password);
+
+        if (!result.Succeeded)
+        {
+            identityErrors = result.Errors;
+            return;
+        }
+
+        Logger.LogInformation("User created a new account with password.");
+
+        await SignInManager.SignInAsync(user, isPersistent: false);
+        RedirectManager.RedirectTo(ReturnUrl);
     }
 
-    private async Task HandleRegister()
+    private ApplicationUser CreateUser()
     {
-        IsLoading = true;
-        ErrorMessage = string.Empty;
-
         try
         {
-            // Проверка совпадения паролей
-            if (registerModel.Password != registerModel.ConfirmPassword)
-            {
-                ErrorMessage = "Пароли не совпадают!";
-                IsLoading = false;
-                return;
-            }
-
-            // Создаем пользователя Identity
-            var user = new IdentityUser
-            {
-                UserName = registerModel.Email,
-                Email = registerModel.Email
-            };
-
-            var result = await UserManager.CreateAsync(user, registerModel.Password);
-
-            if (result.Succeeded)
-            {
-                // Сохраняем дополнительные данные в приватное хранилище
-                var userClaims = new Dictionary<string, string>
-                {
-                    { "FirstName", registerModel.FirstName },
-                    { "LastName", registerModel.LastName },
-                    { "Bio", registerModel.Bio ?? string.Empty }
-                };
-
-                // Можно сохранить в отдельной таблице UserProfiles если нужно
-
-                IsRegistered = true;
-                await Task.Delay(2000);
-                Navigation.NavigateTo("/login");
-            }
-            else
-            {
-                ErrorMessage = string.Join(", ", result.Errors.Select(e => e.Description));
-            }
+            return Activator.CreateInstance<ApplicationUser>();
         }
-        catch (Exception ex)
+        catch
         {
-            ErrorMessage = $"Ошибка регистрации: {ex.Message}";
+            throw new InvalidOperationException($"Can't create an instance of '{nameof(ApplicationUser)}'. " +
+                $"Ensure that '{nameof(ApplicationUser)}' is not an abstract class and has a parameterless constructor.");
         }
-        finally
-        {
-            IsLoading = false;
-        }
+    }
+
+    public class InputModel
+    {
+        [Required]
+        [Display(Name = "Username")]
+        public string UserName { get; set; } = "";
+
+        [Required]
+        [EmailAddress]
+        [Display(Name = "Email")]
+        public string Email { get; set; } = "";
+
+        [Required]
+        [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
+        [DataType(DataType.Password)]
+        [Display(Name = "Password")]
+        public string Password { get; set; } = "";
+
+        [DataType(DataType.Password)]
+        [Display(Name = "Confirm password")]
+        [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+        public string ConfirmPassword { get; set; } = "";
     }
 }

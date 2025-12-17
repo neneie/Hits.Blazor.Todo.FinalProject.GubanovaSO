@@ -2,6 +2,7 @@
 @using Hits.Blazor.Todo.FinalProject.GubanovaSO.Models
 @using Hits.Blazor.Todo.FinalProject.GubanovaSO.Data.Services
 @using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
 @attribute [Authorize]
 @inject EnrollmentService EnrollmentService
 @inject NavigationManager Navigation
@@ -54,7 +55,7 @@
                                 </div>
                                 <div class="progress">
                                     <div class="progress-bar" role="progressbar"
-                                         style="width: @enrollment.ProgressPercentage%"
+                                         style="width: @enrollment.ProgressPercentage%;"
                                          aria-valuenow="@enrollment.ProgressPercentage"
                                          aria-valuemin="0"
                                          aria-valuemax="100"></div>
