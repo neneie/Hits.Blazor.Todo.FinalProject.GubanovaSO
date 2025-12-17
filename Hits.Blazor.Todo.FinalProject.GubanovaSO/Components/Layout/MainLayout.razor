@@ -1,39 +1,22 @@
-﻿@inherits LayoutComponentBase
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@inherits LayoutComponentBase
 
-<div class="app-container">
-    <NavMenu />
-
-    <div class="main-content">
-        <div class="content-wrapper">
-            @Body
-        </div>
+<div class="page">
+    <div class="sidebar">
+        <NavMenu />
     </div>
+
+    <main>
+        <div class="top-row px-4 auth">
+            <AuthorizeView>
+                <Authorized>
+                    Привет, @context.User.Identity?.Name!
+                </Authorized>
+            </AuthorizeView>
+        </div>
+
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
 </div>
-
-<style>
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
-
-    body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background: #f5f5f5;
-    }
-
-    .app-container {
-        display: flex;
-        min-height: 100vh;
-    }
-
-    .main-content {
-        flex: 1;
-        margin-left: 260px;
-        background: #f8f9fa;
-    }
-
-    .content-wrapper {
-        min-height: 100vh;
-    }
-</style>

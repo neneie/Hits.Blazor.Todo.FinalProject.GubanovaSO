@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Migrations.EducationDb
 {
     [DbContext(typeof(EducationDbContext))]
-    [Migration("20251213182305_InitialCreate")]
+    [Migration("20251217220453_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -24,35 +24,6 @@ namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Migrations.EducationDb
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("Hits.Blazor.Todo.FinalProject.GubanovaSO.Models.Achievement", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("IconUrl")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Achievements");
-                });
 
             modelBuilder.Entity("Hits.Blazor.Todo.FinalProject.GubanovaSO.Models.Course", b =>
                 {
@@ -315,9 +286,6 @@ namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Migrations.EducationDb
                     b.Property<int>("TestId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("TestId1")
-                        .HasColumnType("int");
-
                     b.Property<int>("TimeSpentSeconds")
                         .HasColumnType("int");
 
@@ -334,36 +302,9 @@ namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Migrations.EducationDb
 
                     b.HasIndex("TestId");
 
-                    b.HasIndex("TestId1");
-
                     b.HasIndex("UserId", "TestId");
 
                     b.ToTable("TestResults");
-                });
-
-            modelBuilder.Entity("Hits.Blazor.Todo.FinalProject.GubanovaSO.Models.UserAchievement", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("AchievementId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("UnlockedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AchievementId");
-
-                    b.ToTable("UserAchievements");
                 });
 
             modelBuilder.Entity("Hits.Blazor.Todo.FinalProject.GubanovaSO.Models.UserProgress", b =>
@@ -389,9 +330,6 @@ namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Migrations.EducationDb
                     b.Property<int>("LessonId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("LessonId1")
-                        .HasColumnType("int");
-
                     b.Property<string>("Notes")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
@@ -409,8 +347,6 @@ namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Migrations.EducationDb
                     b.HasIndex("EnrollmentId");
 
                     b.HasIndex("LessonId");
-
-                    b.HasIndex("LessonId1");
 
                     b.HasIndex("UserId", "LessonId");
 
@@ -481,29 +417,14 @@ namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Migrations.EducationDb
                         .IsRequired();
 
                     b.HasOne("Hits.Blazor.Todo.FinalProject.GubanovaSO.Models.Test", "Test")
-                        .WithMany()
+                        .WithMany("Results")
                         .HasForeignKey("TestId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.HasOne("Hits.Blazor.Todo.FinalProject.GubanovaSO.Models.Test", null)
-                        .WithMany("Results")
-                        .HasForeignKey("TestId1");
-
                     b.Navigation("Enrollment");
 
                     b.Navigation("Test");
-                });
-
-            modelBuilder.Entity("Hits.Blazor.Todo.FinalProject.GubanovaSO.Models.UserAchievement", b =>
-                {
-                    b.HasOne("Hits.Blazor.Todo.FinalProject.GubanovaSO.Models.Achievement", "Achievement")
-                        .WithMany("UserAchievements")
-                        .HasForeignKey("AchievementId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Achievement");
                 });
 
             modelBuilder.Entity("Hits.Blazor.Todo.FinalProject.GubanovaSO.Models.UserProgress", b =>
@@ -515,23 +436,14 @@ namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Migrations.EducationDb
                         .IsRequired();
 
                     b.HasOne("Hits.Blazor.Todo.FinalProject.GubanovaSO.Models.Lesson", "Lesson")
-                        .WithMany()
+                        .WithMany("UserProgresses")
                         .HasForeignKey("LessonId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.HasOne("Hits.Blazor.Todo.FinalProject.GubanovaSO.Models.Lesson", null)
-                        .WithMany("UserProgresses")
-                        .HasForeignKey("LessonId1");
-
                     b.Navigation("Enrollment");
 
                     b.Navigation("Lesson");
-                });
-
-            modelBuilder.Entity("Hits.Blazor.Todo.FinalProject.GubanovaSO.Models.Achievement", b =>
-                {
-                    b.Navigation("UserAchievements");
                 });
 
             modelBuilder.Entity("Hits.Blazor.Todo.FinalProject.GubanovaSO.Models.Course", b =>

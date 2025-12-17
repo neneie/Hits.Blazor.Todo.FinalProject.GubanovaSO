@@ -47,6 +47,17 @@ namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Data
                 .HasMany(q => q.Options)
                 .WithOne(qo => qo.Question)
                 .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<TestResult>()
+                .HasOne(tr => tr.Test)
+                .WithMany(t => t.Results)
+                .HasForeignKey(tr => tr.TestId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<TestResult>()
+                .HasOne(tr => tr.Enrollment)
+                .WithMany()
+                .HasForeignKey(tr => tr.EnrollmentId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

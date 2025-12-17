@@ -1,0 +1,11 @@
+﻿DROP TABLE IF EXISTS [TestResults];
+DROP TABLE IF EXISTS [UserProgresses];
+DROP TABLE IF EXISTS [UserAchievements];
+DROP TABLE IF EXISTS [QuestionOptions];
+DROP TABLE IF EXISTS [Questions];
+DROP TABLE IF EXISTS [Enrollments];
+DROP TABLE IF EXISTS [Lessons];
+DROP TABLE IF EXISTS [Tests];
+DROP TABLE IF EXISTS [Achievements];
+DROP TABLE IF EXISTS [Courses];
+DROP TABLE IF EXISTS [__EFMigrationsHistory];

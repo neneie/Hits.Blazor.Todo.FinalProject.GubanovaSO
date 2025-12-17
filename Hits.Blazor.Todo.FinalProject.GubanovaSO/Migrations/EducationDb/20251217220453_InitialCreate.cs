@@ -12,22 +12,6 @@ namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Migrations.EducationDb
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Achievements",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Title = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
-                    IconUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Achievements", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Courses",
                 columns: table => new
                 {
@@ -47,27 +31,6 @@ namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Migrations.EducationDb
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Courses", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "UserAchievements",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    UserId = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    AchievementId = table.Column<int>(type: "int", nullable: false),
-                    UnlockedDate = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_UserAchievements", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_UserAchievements_Achievements_AchievementId",
-                        column: x => x.AchievementId,
-                        principalTable: "Achievements",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -158,8 +121,7 @@ namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Migrations.EducationDb
                     CompletedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     IsCompleted = table.Column<bool>(type: "bit", nullable: false),
                     CompletionPercentage = table.Column<int>(type: "int", nullable: false),
-                    Notes = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
-                    LessonId1 = table.Column<int>(type: "int", nullable: true)
+                    Notes = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -173,11 +135,6 @@ namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Migrations.EducationDb
                     table.ForeignKey(
                         name: "FK_UserProgresses_Lessons_LessonId",
                         column: x => x.LessonId,
-                        principalTable: "Lessons",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_UserProgresses_Lessons_LessonId1",
-                        column: x => x.LessonId1,
                         principalTable: "Lessons",
                         principalColumn: "Id");
                 });
@@ -221,8 +178,7 @@ namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Migrations.EducationDb
                     CompletedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     TotalQuestions = table.Column<int>(type: "int", nullable: false),
                     CorrectAnswers = table.Column<int>(type: "int", nullable: false),
-                    TimeSpentSeconds = table.Column<int>(type: "int", nullable: false),
-                    TestId1 = table.Column<int>(type: "int", nullable: true)
+                    TimeSpentSeconds = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -236,11 +192,6 @@ namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Migrations.EducationDb
                     table.ForeignKey(
                         name: "FK_TestResults_Tests_TestId",
                         column: x => x.TestId,
-                        principalTable: "Tests",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_TestResults_Tests_TestId1",
-                        column: x => x.TestId1,
                         principalTable: "Tests",
                         principalColumn: "Id");
                 });
@@ -304,11 +255,6 @@ namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Migrations.EducationDb
                 column: "TestId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_TestResults_TestId1",
-                table: "TestResults",
-                column: "TestId1");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_TestResults_UserId_TestId",
                 table: "TestResults",
                 columns: new[] { "UserId", "TestId" });
@@ -319,11 +265,6 @@ namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Migrations.EducationDb
                 column: "CourseId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserAchievements_AchievementId",
-                table: "UserAchievements",
-                column: "AchievementId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_UserProgresses_EnrollmentId",
                 table: "UserProgresses",
                 column: "EnrollmentId");
@@ -332,11 +273,6 @@ namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Migrations.EducationDb
                 name: "IX_UserProgresses_LessonId",
                 table: "UserProgresses",
                 column: "LessonId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_UserProgresses_LessonId1",
-                table: "UserProgresses",
-                column: "LessonId1");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserProgresses_UserId_LessonId",
@@ -354,16 +290,10 @@ namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Migrations.EducationDb
                 name: "TestResults");
 
             migrationBuilder.DropTable(
-                name: "UserAchievements");
-
-            migrationBuilder.DropTable(
                 name: "UserProgresses");
 
             migrationBuilder.DropTable(
                 name: "Questions");
-
-            migrationBuilder.DropTable(
-                name: "Achievements");
 
             migrationBuilder.DropTable(
                 name: "Enrollments");

@@ -20,7 +20,7 @@ namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Models
         [ForeignKey(nameof(EnrollmentId))]
         public Enrollment Enrollment { get; set; } = null!;
 
-        [Range(0, 100)]
+        [Range(0, 100, ErrorMessage = "Оценка должна быть от 0 до 100")]
         public int Score { get; set; }
 
         [Range(0, 100)]

@@ -1,181 +1,137 @@
 ﻿@page "/courses/create"
 @using Hits.Blazor.Todo.FinalProject.GubanovaSO.Models
 @using Hits.Blazor.Todo.FinalProject.GubanovaSO.Data.Services
-@using System.ComponentModel.DataAnnotations
 @using Microsoft.AspNetCore.Authorization
-@using Microsoft.AspNetCore.Components.Authorization
-@attribute [Authorize(Roles = "Instructor,Admin")]
+@using System.ComponentModel.DataAnnotations
+
 @inject CourseService CourseService
-@inject NavigationManager Navigation
-@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager NavigationManager
+@attribute [Authorize]
 
-<PageTitle>Создать курс - Hits.Todo</PageTitle>
+<PageTitle>Создать курс</PageTitle>
 
-<div class="container mt-4">
+<div class="container mt-5">
     <div class="row">
-        <div class="col-md-8 offset-md-2">
+        <div class="col-md-8">
             <h2>Создать новый курс</h2>
+            <hr />
 
             @if (!string.IsNullOrEmpty(errorMessage))
             {
                 <div class="alert alert-danger">@errorMessage</div>
             }
 
-            @if (isSuccess)
-            {
-                <div class="alert alert-success">Курс создан! Перенаправляю...</div>
-            }
-            else
-            {
-                <EditForm Model="@courseModel" OnSubmit="@HandleCreateCourse">
-                    <DataAnnotationsValidator />
-                    <ValidationSummary class="text-danger" />
+            <EditForm FormName="createCourse" Model="Input" OnValidSubmit="HandleCreateCourse">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
 
-                    <div class="mb-3">
-                        <label class="form-label">Название</label>
-                        <InputText @bind-Value="courseModel.Title" class="form-control" />
-                        <ValidationMessage For="@(() => courseModel.Title)" />
-                    </div>
+                <div class="mb-3">
+                    <label class="form-label">Название курса</label>
+                    <InputText @bind-Value="Input.Title" class="form-control" />
+                    <ValidationMessage For="() => Input.Title" />
+                </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">Описание</label>
-                        <InputTextArea @bind-Value="courseModel.Description" class="form-control" rows="4" />
-                        <ValidationMessage For="@(() => courseModel.Description)" />
-                    </div>
+                <div class="mb-3">
+                    <label class="form-label">Описание</label>
+                    <InputTextArea @bind-Value="Input.Description" class="form-control" rows="5" />
+                    <ValidationMessage For="() => Input.Description" />
+                </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">Категория</label>
-                        <InputText @bind-Value="courseModel.Category" class="form-control" />
-                        <ValidationMessage For="@(() => courseModel.Category)" />
-                    </div>
+                <div class="mb-3">
+                    <label class="form-label">Категория</label>
+                    <InputText @bind-Value="Input.Category" class="form-control" />
+                </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">URL изображения</label>
-                        <InputText @bind-Value="courseModel.ImageUrl" class="form-control" />
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Уровень</label>
-                            <InputSelect @bind-Value="courseModel.DifficultyLevel" class="form-control">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Уровень сложности</label>
+                            <InputSelect @bind-Value="Input.DifficultyLevel" class="form-control">
                                 <option value="1">Начинающий</option>
                                 <option value="2">Средний</option>
                                 <option value="3">Продвинутый</option>
                             </InputSelect>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Часов</label>
-                            <InputNumber @bind-Value="courseModel.DurationHours" class="form-control" min="1" />
-                            <ValidationMessage For="@(() => courseModel.DurationHours)" />
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Длительность (часов)</label>
+                            <InputNumber @bind-Value="Input.DurationHours" class="form-control" />
                         </div>
                     </div>
+                </div>
 
-                    <div class="mb-3 form-check">
-                        <InputCheckbox @bind-Value="courseModel.IsActive" class="form-check-input" id="isActive" />
-                        <label class="form-check-label" for="isActive">Активный курс</label>
-                    </div>
+                <div class="mb-3 form-check">
+                    <InputCheckbox @bind-Value="Input.IsActive" class="form-check-input" id="isActive" />
+                    <label class="form-check-label" for="isActive">Активный курс</label>
+                </div>
 
-                    <div class="d-flex gap-2">
-                        <button type="submit" class="btn btn-success" disabled="@isLoading">
-                            @if (isLoading)
-                            {
-                                <span>Создаю...</span>
-                            }
-                            else
-                            {
-
-                                <span>Создать</span>
-                            }
-                        </button>
-                        <a href="/courses" class="btn btn-secondary">Отмена</a>
-                    </div>
-                </EditForm>
-            }
+                <button type="submit" class="btn btn-success">Создать курс</button>
+                <a href="/courses" class="btn btn-secondary">Отмена</a>
+            </EditForm>
         </div>
     </div>
 </div>
 
 @code {
-    private CourseModel courseModel = new();
-    private string errorMessage = string.Empty;
-    private bool isLoading = false;
-    private bool isSuccess = false;
-    private string? instructorId;
+    private string? errorMessage;
 
-    private class CourseModel
-    {
-        [Required(ErrorMessage = "Название обязательно")]
-        [StringLength(200, MinimumLength = 3)]
-        public string Title { get; set; } = string.Empty;
+    [SupplyParameterFromForm(FormName = "createCourse")]
+    public InputModel Input { get; set; } = new();
 
-        [Required(ErrorMessage = "Описание обязательно")]
-        [StringLength(2000, MinimumLength = 10)]
-        public string Description { get; set; } = string.Empty;
-
-        [Required(ErrorMessage = "Категория обязательна")]
-        public string Category { get; set; } = string.Empty;
-
-        public string? ImageUrl { get; set; }
-
-        [Range(1, 3)]
-        public int DifficultyLevel { get; set; } = 1;
-
-        [Range(1, int.MaxValue)]
-        public int DurationHours { get; set; } = 1;
-
-        public bool IsActive { get; set; } = true;
-    }
-
-    protected override async Task OnInitializedAsync()
-    {
-        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        var user = authState.User;
-
-        if (user.Identity?.IsAuthenticated == true)
-        {
-            instructorId = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-        }
-    }
+    [CascadingParameter]
+    private HttpContext? HttpContext { get; set; }
 
     private async Task HandleCreateCourse()
     {
-        if (string.IsNullOrEmpty(instructorId))
-        {
-            errorMessage = "Ошибка: не удалось определить преподавателя";
-            return;
-        }
-
-        isLoading = true;
-        errorMessage = string.Empty;
-
         try
         {
+            var userId = HttpContext?.User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+            {
+                errorMessage = "Ошибка: не удалось определить пользователя";
+                return;
+            }
+
             var course = new Course
             {
-                Title = courseModel.Title,
-                Description = courseModel.Description,
-                Category = courseModel.Category,
-                ImageUrl = courseModel.ImageUrl,
-                DifficultyLevel = courseModel.DifficultyLevel,
-                DurationHours = courseModel.DurationHours,
-                IsActive = courseModel.IsActive,
-                InstructorId = instructorId,
+                Title = Input.Title,
+                Description = Input.Description,
+                Category = Input.Category ?? "",
+                DifficultyLevel = Input.DifficultyLevel,
+                DurationHours = Input.DurationHours,
+                InstructorId = userId,
+                IsActive = Input.IsActive,
                 CreatedDate = DateTime.UtcNow
             };
 
             await CourseService.CreateCourseAsync(course);
-            isSuccess = true;
-
-            await Task.Delay(2000);
-            Navigation.NavigateTo("/courses");
+            NavigationManager.NavigateTo("/courses");
         }
         catch (Exception ex)
         {
-            errorMessage = $"Ошибка: {ex.Message}";
+            errorMessage = $"Ошибка при создании курса: {ex.Message}";
         }
-        finally
-        {
-            isLoading = false;
-        }
+    }
+
+    public class InputModel
+    {
+        [Required(ErrorMessage = "Название обязательно")]
+        [StringLength(200, MinimumLength = 3, ErrorMessage = "Название должно быть от 3 до 200 символов")]
+        public string Title { get; set; } = "";
+
+        [Required(ErrorMessage = "Описание обязательно")]
+        [StringLength(2000, MinimumLength = 10, ErrorMessage = "Описание должно быть от 10 до 2000 символов")]
+        public string Description { get; set; } = "";
+
+        public string? Category { get; set; }
+
+        [Range(1, 3, ErrorMessage = "Выберите уровень сложности")]
+        public int DifficultyLevel { get; set; } = 1;
+
+        [Range(1, 1000, ErrorMessage = "Длительность должна быть от 1 до 1000 часов")]
+        public int DurationHours { get; set; } = 1;
+
+        public bool IsActive { get; set; } = true;
     }
 }

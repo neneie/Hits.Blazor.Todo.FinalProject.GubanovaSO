@@ -416,7 +416,7 @@ namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Migrations.EducationDb
                     b.HasOne("Hits.Blazor.Todo.FinalProject.GubanovaSO.Models.Test", "Test")
                         .WithMany("Results")
                         .HasForeignKey("TestId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Enrollment");

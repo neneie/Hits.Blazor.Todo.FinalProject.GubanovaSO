@@ -1,26 +1,35 @@
 ﻿@page "/courses"
-@using Hits.Blazor.Todo.FinalProject.GubanovaSO.Models
 @using Hits.Blazor.Todo.FinalProject.GubanovaSO.Data.Services
+@using Hits.Blazor.Todo.FinalProject.GubanovaSO.Models
 @using Microsoft.AspNetCore.Authorization
+
 @inject CourseService CourseService
 @inject NavigationManager Navigation
 
-<PageTitle>Курсы - Hits.Todo</PageTitle>
+<PageTitle>Курсы</PageTitle>
 
-<div class="container mt-4">
-    <h2>Курсы</h2>
+<div class="container mt-5">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2>Курсы</h2>
+        </div>
+        <div class="col-md-4 text-end">
+            <AuthorizeView>
+                <Authorized>
+                    <a href="/courses/create" class="btn btn-success">+ Создать курс</a>
+                </Authorized>
+            </AuthorizeView>
+        </div>
+    </div>
 
-    <div class="mb-3 d-flex justify-content-between align-items-center">
-        <input type="text" 
-               class="form-control" 
-               placeholder="Поиск курсов..." 
-               style="max-width: 300px;"
-               @oninput="SearchCourses" />
-        <AuthorizeView Roles="Instructor,Admin">
-            <Authorized>
-                <a href="/courses/create" class="btn btn-success">Создать курс</a>
-            </Authorized>
-        </AuthorizeView>
+    <!-- Поиск -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <input type="text" 
+                   class="form-control" 
+                   placeholder="Поиск курсов..." 
+                   @oninput="SearchCourses" />
+        </div>
     </div>
 
     @if (courses == null)

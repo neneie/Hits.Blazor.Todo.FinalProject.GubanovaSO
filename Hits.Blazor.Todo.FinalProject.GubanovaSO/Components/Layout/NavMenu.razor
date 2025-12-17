@@ -1,44 +1,75 @@
-﻿@using Microsoft.AspNetCore.Components.Authorization
+﻿@implements IAsyncDisposable
+@inject NavigationManager NavigationManager
+@using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Identity
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="/">Hits.Todo</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto">
-                <li class="nav-item">
-                    <NavLink class="nav-link" href="/">Главная</NavLink>
-                </li>
-                <li class="nav-item">
-                    <NavLink class="nav-link" href="/courses">Курсы</NavLink>
-                </li>
-                <AuthorizeView>
-                    <Authorized>
-                        <li class="nav-item">
-                            <NavLink class="nav-link" href="/my-learning">Мое обучение</NavLink>
-                        </li>
-                        <li class="nav-item">
-                            <NavLink class="nav-link" href="/profile">Профиль</NavLink>
-                        </li>
-                        <li class="nav-item">
-                            <form method="post" action="/Account/Logout" style="display:inline;">
-                                <button type="submit" class="nav-link btn btn-link" style="border:none;background:none;color:inherit;cursor:pointer;">Выход</button>
-                            </form>
-                        </li>
-                    </Authorized>
-                    <NotAuthorized>
-                        <li class="nav-item">
-                            <NavLink class="nav-link" href="/Account/Register">Регистрация</NavLink>
-                        </li>
-                        <li class="nav-item">
-                            <NavLink class="nav-link" href="/Account/Login">Вход</NavLink>
-                        </li>
-                    </NotAuthorized>
-                </AuthorizeView>
-            </ul>
+<div class="sidebar" @onclick="ToggleNavMenu">
+    <nav class="flex-column">
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="oi oi-home" aria-hidden="true"></span> Главная
+            </NavLink>
         </div>
-    </div>
-</nav>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="courses">
+                <span class="oi oi-list-rich" aria-hidden="true"></span> Курсы
+            </NavLink>
+        </div>
+
+        <AuthorizeView>
+            <Authorized>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="my-learning">
+                        <span class="oi oi-book" aria-hidden="true"></span> Мое обучение
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="profile">
+                        <span class="oi oi-person" aria-hidden="true"></span> Профиль
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <form method="post" action="/Account/Logout">
+                        <button type="submit" class="nav-link" style="background:none;border:none;padding:0;cursor:pointer;">
+                            <span class="oi oi-account-logout" aria-hidden="true"></span> Выход
+                        </button>
+                    </form>
+                </div>
+            </Authorized>
+            <NotAuthorized>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="Account/Login">
+                        <span class="oi oi-account-login" aria-hidden="true"></span> Вход
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="Account/Register">
+                        <span class="oi oi-plus" aria-hidden="true"></span> Регистрация
+                    </NavLink>
+                </div>
+            </NotAuthorized>
+        </AuthorizeView>
+    </nav>
+</div>
+
+<div class="top-row px-4">
+    <a href="" class="navbar-brand">Hits.Todo</a>
+    <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+</div>
+
+@code {
+    private bool collapseNavMenu = true;
+
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+
+    async ValueTask IAsyncDisposable.DisposeAsync()
+    {
+    }
+}
