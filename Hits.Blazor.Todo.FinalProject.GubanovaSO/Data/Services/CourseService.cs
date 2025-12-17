@@ -17,7 +17,6 @@ namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Data.Services
         {
             return await _context.Courses
                 .Include(c => c.Lessons)
-                .Include(c => c.Tests)
                 .Where(c => c.IsActive)
                 .OrderByDescending(c => c.CreatedDate)
                 .ToListAsync();
@@ -27,7 +26,6 @@ namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Data.Services
         {
             return await _context.Courses
                 .Include(c => c.Lessons.OrderBy(l => l.OrderNumber))
-                .Include(c => c.Tests)
                 .FirstOrDefaultAsync(c => c.Id == id);
         }
 

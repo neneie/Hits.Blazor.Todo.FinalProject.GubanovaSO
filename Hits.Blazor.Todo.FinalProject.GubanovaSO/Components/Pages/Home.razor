@@ -1,54 +1,38 @@
 ﻿@page "/"
 
-<PageTitle>Главная - Hits.Todo</PageTitle>
+<PageTitle>EducationPlatform - Онлайн обучение</PageTitle>
 
 <div class="container mt-5">
-    <div class="jumbotron text-center mb-5">
-        <h1 class="display-4">Добро пожаловать!</h1>
-        <p class="lead">Платформа для онлайн обучения</p>
-        <hr class="my-4">
-        <p>Изучайте новые навыки, развивайтесь и достигайте своих целей</p>
-        <div class="mt-4">
+    <div class="row">
+        <div class="col-lg-8 mx-auto text-center">
+            <h1 class="display-4 fw-bold mb-4">Добро пожаловать в EducationPlatform!</h1>
+            <p class="lead mb-4">Платформа для онлайн обучения и развития навыков</p>
+            
             <AuthorizeView>
                 <NotAuthorized>
-                    <a class="btn btn-primary btn-lg me-2" href="/Account/Login" role="button">Войти</a>
-                    <a class="btn btn-success btn-lg" href="/Account/Register" role="button">Зарегистрироваться</a>
+                    <div class="d-flex gap-3 justify-content-center mb-5">
+                        <a href="/Account/Login" class="btn btn-primary btn-lg">Войти</a>
+                        <a href="/Account/Register" class="btn btn-success btn-lg">Регистрация</a>
+                        <a href="/courses" class="btn btn-secondary btn-lg">Лекции</a>
+                    </div>
                 </NotAuthorized>
                 <Authorized>
-                    <a class="btn btn-primary btn-lg me-2" href="/courses" role="button">К курсам</a>
-                    <a class="btn btn-secondary btn-lg" href="/my-learning" role="button">Мое обучение</a>
+                    <a href="/courses" class="btn btn-primary btn-lg">Перейти к лекциям</a>
                 </Authorized>
             </AuthorizeView>
-        </div>
-    </div>
 
-    <div class="row mt-5">
-        <div class="col-md-4 mb-3">
-            <div class="card text-center h-100">
-                <div class="card-body">
-                    <h5 class="card-title">Обучайтесь</h5>
-                    <p class="card-text">Качественные курсы от опытных преподавателей</p>
+            <hr class="my-5" />
+
+            <div class="row mt-5">
+                <div class="col-md-4">
+                    <h5>Качественные лекции</h5>
+                    <p>Лекции от опытных преподавателей и экспертов в своей области</p>
                 </div>
-            </div>
-        </div>
-        <div class="col-md-4 mb-3">
-            <div class="card text-center h-100">
-                <div class="card-body">
-                    <h5 class="card-title">Совершенствуйтесь</h5>
-                    <p class="card-text">Отслеживайте прогресс и развивайте навыки</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4 mb-3">
-            <div class="card text-center h-100">
-                <div class="card-body">
-                    <h5 class="card-title">Достигайте целей</h5>
-                    <p class="card-text">Получайте сертификаты после завершения курсов</p>
+                <div class="col-md-4">
+                    <h5>Достижения</h5>
+                    <p>Получайте сертификаты после завершения курсов</p>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
-@code {
-}

@@ -11,64 +11,56 @@
 
 <PageTitle>Регистрация</PageTitle>
 
-<div class="container mt-5">
-    <div class="row">
-        <div class="col-md-6 offset-md-3">
-            <div class="card">
-                <div class="card-body">
-                    <h3 class="card-title mb-4">Регистрация</h3>
+<div class="login-container">
+    <div class="login-box">
+        <h2>Регистрация</h2>
 
-                    @if (errorMessage != null)
-                    {
-                        <div class="alert alert-danger">@errorMessage</div>
-                    }
+        @if (errorMessage != null)
+        {
+            <div class="alert alert-danger">@errorMessage</div>
+        }
 
-                    <!-- ВАЖНО: FormName="register" -->
-                    <EditForm FormName="register" Model="Input" OnValidSubmit="RegisterUser">
-                        <DataAnnotationsValidator />
-                        <ValidationSummary class="text-danger" />
+        <EditForm FormName="register" Model="Input" OnValidSubmit="RegisterUser">
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" />
 
-                        <div class="mb-3">
-                            <label class="form-label">Имя пользователя</label>
-                            <InputText @bind-Value="Input.UserName" class="form-control" />
-                            <ValidationMessage For="() => Input.UserName" />
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Email</label>
-                            <InputText type="email" @bind-Value="Input.Email" class="form-control" />
-                            <ValidationMessage For="() => Input.Email" />
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Пароль</label>
-                            <InputText type="password" @bind-Value="Input.Password" class="form-control" />
-                            <ValidationMessage For="() => Input.Password" />
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Подтвердите пароль</label>
-                            <InputText type="password" @bind-Value="Input.ConfirmPassword" class="form-control" />
-                            <ValidationMessage For="() => Input.ConfirmPassword" />
-                        </div>
-
-                        <button type="submit" class="btn btn-success w-100">Регистрация</button>
-                    </EditForm>
-
-                    <hr />
-                    <p class="text-center">
-                        <a href="/Account/Login">Уже зарегистрированы? Войти</a>
-                    </p>
-                </div>
+            <div class="form-group">
+                <label>Имя пользователя</label>
+                <InputText @bind-Value="Input.UserName" class="form-control" placeholder="Выберите имя пользователя" />
+                <ValidationMessage For="() => Input.UserName" />
             </div>
-        </div>
+
+            <div class="form-group">
+                <label>Email</label>
+                <InputText type="email" @bind-Value="Input.Email" class="form-control" placeholder="example@email.com" />
+                <ValidationMessage For="() => Input.Email" />
+            </div>
+
+            <div class="form-group">
+                <label>Пароль</label>
+                <InputText type="password" @bind-Value="Input.Password" class="form-control" placeholder="Минимум 6 символов" />
+                <ValidationMessage For="() => Input.Password" />
+            </div>
+
+            <div class="form-group">
+                <label>Подтвердите пароль</label>
+                <InputText type="password" @bind-Value="Input.ConfirmPassword" class="form-control" placeholder="Повторите пароль" />
+                <ValidationMessage For="() => Input.ConfirmPassword" />
+            </div>
+
+            <button type="submit" class="btn btn-success w-100">Регистрация</button>
+        </EditForm>
+
+        <hr />
+        <p class="text-center">
+            Уже зарегистрированы? <a href="/Account/Login">Войти</a>
+        </p>
     </div>
 </div>
 
 @code {
     private string? errorMessage;
 
-    // ПРИВЯЗКА К КОНКРЕТНОЙ ФОРМЕ
     [SupplyParameterFromForm(FormName = "register")]
     public InputModel Input { get; set; } = new();
 
@@ -94,6 +86,7 @@
     public class InputModel
     {
         [Required(ErrorMessage = "Имя пользователя обязательно")]
+        [StringLength(256)]
         public string UserName { get; set; } = "";
 
         [Required(ErrorMessage = "Email обязателен")]

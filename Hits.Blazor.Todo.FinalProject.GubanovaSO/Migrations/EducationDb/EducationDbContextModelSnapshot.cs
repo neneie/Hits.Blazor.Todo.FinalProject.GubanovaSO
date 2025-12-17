@@ -397,7 +397,7 @@ namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Migrations.EducationDb
             modelBuilder.Entity("Hits.Blazor.Todo.FinalProject.GubanovaSO.Models.Test", b =>
                 {
                     b.HasOne("Hits.Blazor.Todo.FinalProject.GubanovaSO.Models.Course", "Course")
-                        .WithMany("Tests")
+                        .WithMany()
                         .HasForeignKey("CourseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -448,8 +448,6 @@ namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Migrations.EducationDb
                     b.Navigation("Enrollments");
 
                     b.Navigation("Lessons");
-
-                    b.Navigation("Tests");
                 });
 
             modelBuilder.Entity("Hits.Blazor.Todo.FinalProject.GubanovaSO.Models.Enrollment", b =>

@@ -11,57 +11,47 @@
 
 <PageTitle>Вход</PageTitle>
 
-<div class="container mt-5">
-    <div class="row">
-        <div class="col-md-6 offset-md-3">
-            <div class="card">
-                <div class="card-body">
-                    <h3 class="card-title mb-4">Вход</h3>
+<div class="login-container">
+    <div class="login-box">
+        <h2>Вход в EducationPlatform</h2>
 
-                    @if (!string.IsNullOrEmpty(errorMessage))
-                    {
-                        <div class="alert alert-danger">@errorMessage</div>
-                    }
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="alert alert-danger">@errorMessage</div>
+        }
 
-                    <!-- ВАЖНО: FormName="login" -->
-                    <EditForm FormName="login" Model="Input" OnValidSubmit="LoginUser">
-                        <DataAnnotationsValidator />
-                        <ValidationSummary class="text-danger" />
+        <EditForm FormName="login" Model="Input" OnValidSubmit="LoginUser">
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" />
 
-                        <div class="mb-3">
-                            <label class="form-label">Email</label>
-                            <InputText @bind-Value="Input.Email" class="form-control" />
-                            <ValidationMessage For="() => Input.Email" />
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Пароль</label>
-                            <InputText type="password" @bind-Value="Input.Password" class="form-control" />
-                            <ValidationMessage For="() => Input.Password" />
-                        </div>
-
-                        <div class="mb-3 form-check">
-                            <InputCheckbox @bind-Value="Input.RememberMe" class="form-check-input" id="rememberMe" />
-                            <label class="form-check-label" for="rememberMe">Запомнить меня</label>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary w-100">Войти</button>
-                    </EditForm>
-
-                    <hr />
-                    <p class="text-center">
-                        <a href="/Account/Register">Зарегистрироваться</a>
-                    </p>
-                </div>
+            <div class="form-group">
+                <label>Email</label>
+                <InputText @bind-Value="Input.Email" class="form-control" placeholder="example@email.com" />
             </div>
-        </div>
+
+            <div class="form-group">
+                <label>Пароль</label>
+                <InputText type="password" @bind-Value="Input.Password" class="form-control" placeholder="Ваш пароль" />
+            </div>
+
+            <div class="form-check">
+                <InputCheckbox @bind-Value="Input.RememberMe" class="form-check-input" id="rememberMe" />
+                <label class="form-check-label" for="rememberMe">Запомнить меня</label>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">Войти</button>
+        </EditForm>
+
+        <hr />
+        <p class="text-center">
+            Нет аккаунта? <a href="/Account/Register">Зарегистрироваться</a>
+        </p>
     </div>
 </div>
 
 @code {
     private string? errorMessage;
 
-    // ПРИВЯЗКА К КОНКРЕТНОЙ ФОРМЕ
     [SupplyParameterFromForm(FormName = "login")]
     public InputModel Input { get; set; } = new();
 
@@ -69,7 +59,7 @@
     public string? ReturnUrl { get; set; }
 
     [CascadingParameter]
-    public HttpContext HttpContext { get; set; } = default!;
+    private HttpContext HttpContext { get; set; } = default!;
 
     protected override async Task OnInitializedAsync()
     {
@@ -81,19 +71,36 @@
 
     public async Task LoginUser()
     {
-        var result = await SignInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
-        if (result.Succeeded)
+        try
         {
-            Logger.LogInformation("Пользователь успешно вошел");
-            NavigationManager.NavigateTo(ReturnUrl ?? "/");
+            // Используй Email для поиска пользователя (как в регистрации)
+            var user = await SignInManager.UserManager.FindByEmailAsync(Input.Email);
+
+            if (user == null)
+            {
+                errorMessage = "Пользователь не найден";
+                return;
+            }
+
+            var result = await SignInManager.PasswordSignInAsync(user.UserName, Input.Password, Input.RememberMe, lockoutOnFailure: false);
+
+            if (result.Succeeded)
+            {
+                Logger.LogInformation("Пользователь успешно вошел");
+                NavigationManager.NavigateTo(ReturnUrl ?? "/");
+            }
+            else if (result.IsLockedOut)
+            {
+                errorMessage = "Аккаунт заблокирован";
+            }
+            else
+            {
+                errorMessage = "Неверный пароль";
+            }
         }
-        else if (result.IsLockedOut)
+        catch (Exception ex)
         {
-            errorMessage = "Аккаунт заблокирован";
-        }
-        else
-        {
-            errorMessage = "Неверный email или пароль";
+            errorMessage = $"Ошибка: {ex.Message}";
         }
     }
 

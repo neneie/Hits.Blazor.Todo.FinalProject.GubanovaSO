@@ -7,10 +7,10 @@
     </div>
 
     <main>
-        <div class="top-row px-4 auth">
+        <div class="top-row px-4">
             <AuthorizeView>
                 <Authorized>
-                    Привет, @context.User.Identity?.Name!
+                    Добро пожаловать, @context.User.Identity?.Name!
                 </Authorized>
             </AuthorizeView>
         </div>
@@ -19,4 +19,10 @@
             @Body
         </article>
     </main>
+</div>
+
+<div id="blazor-error-ui" data-nosnippet>
+    Произошла ошибка.
+    <a href="." class="reload">Перезагрузить</a>
+    <span class="dismiss">×</span>
 </div>

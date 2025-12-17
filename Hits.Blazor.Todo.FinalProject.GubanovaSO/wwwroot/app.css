@@ -1,8 +1,7 @@
 @import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
 
 html, body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-    color: #333;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
 }
 
 code {
@@ -80,40 +79,78 @@ main {
             border-bottom: 2px solid #fff;
         }
 
-    main ::deep .nav-item {
-        margin-bottom: 0.5rem;
+.nav-item {
+    margin-bottom: 0.5rem;
+}
+
+    .nav-item:first-of-type {
+        padding-top: 1rem;
     }
 
-        main ::deep .nav-item:first-of-type {
-            padding-top: 1rem;
+    .nav-item:last-of-type {
+        padding-bottom: 1rem;
+    }
+
+    .nav-item ::deep a {
+        color: #d7dadc;
+        border-radius: 4px;
+        height: 3rem;
+        display: flex;
+        align-items: center;
+        line-height: 3rem;
+    }
+
+        .nav-item ::deep a.active {
+            background-color: rgba(255, 255, 255, 0.25);
+            color: white;
         }
 
-        main ::deep .nav-item:last-of-type {
-            padding-bottom: 1rem;
+        .nav-item ::deep a:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
         }
 
-        main ::deep .nav-item ::deep a {
-            color: #d7dadc;
-            border-radius: 4px;
-            height: 3rem;
-            display: flex;
-            align-items: center;
-            line-height: 3rem;
+    .nav-item form {
+        display: flex;
+    }
+
+    .nav-item .nav-link {
+        padding: 0.75rem 1rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .nav-item button.nav-link {
+        background: none;
+        border: none;
+        padding: 0.75rem 1rem;
+        width: 100%;
+        text-align: left;
+        color: #d7dadc;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border-radius: 4px;
+        margin: 0 0.5rem;
+        transition: background-color 0.2s ease;
+    }
+
+        .nav-item button.nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
         }
 
-            main ::deep .nav-item ::deep a.active {
-                background-color: rgba(255, 255, 255, 0.25);
-                color: white;
-            }
-
-            main ::deep .nav-item ::deep a:hover {
-                background-color: rgba(255, 255, 255, 0.1);
-                color: white;
-            }
+.top-row {
+    background-color: #f7f7f7;
+    border-bottom: 1px solid #d6d5d5;
+    padding: 0.5rem 1rem;
+}
 
 @media (max-width: 640.98px) {
-    .top-row:not(.auth) {
-        display: none;
+    .page {
+        flex-direction: column;
     }
 
     main {
@@ -124,9 +161,8 @@ main {
         display: none;
     }
 
-        .sidebar.collapse {
+        .sidebar.show {
             display: flex;
-            flex-direction: column;
         }
 
     main ::deep .nav-scrollable {
@@ -135,7 +171,7 @@ main {
         flex-wrap: nowrap;
     }
 
-    main ::deep .nav-item {
+    .nav-item {
         margin-bottom: 0;
     }
 }
@@ -159,10 +195,6 @@ main {
         justify-content: space-between;
     }
 
-        .top-row.auth ::deep a:first-child {
-            margin-left: auto;
-        }
-
     main ::deep .nav-scrollable {
         flex-direction: column;
     }
@@ -172,24 +204,169 @@ main {
     }
 }
 
-.sidebar ::deep .navbar-brand {
-    font-size: 1.1rem;
-    color: white;
+.btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
     text-decoration: none;
-    line-height: 2.5rem;
-    padding-left: 15px;
+    display: inline-block;
 }
 
-.sidebar ::deep nav {
-    flex-direction: column;
+.btn-primary {
+    background-color: #0d6efd;
+    color: white;
 }
 
-.px-3 {
-    padding-left: 1rem !important;
-    padding-right: 1rem !important;
+    .btn-primary:hover {
+        background-color: #0b5ed7;
+    }
+
+.btn-success {
+    background-color: #198754;
+    color: white;
 }
 
-.px-4 {
-    padding-left: 1.5rem !important;
-    padding-right: 1.5rem !important;
+    .btn-success:hover {
+        background-color: #157347;
+    }
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
 }
+
+    .btn-secondary:hover {
+        background-color: #5c636a;
+    }
+
+.w-100 {
+    width: 100%;
+}
+
+.form-control {
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+    .form-control:focus {
+        outline: none;
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25);
+    }
+
+.card {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #ddd;
+    padding: 0.75rem 1rem;
+}
+
+.card-body {
+    padding: 1rem;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+    }
+
+.alert {
+    padding: 0.75rem 1rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+}
+
+.alert-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.alert-info {
+    background-color: #d1ecf1;
+    color: #0c5460;
+    border: 1px solid #bee5eb;
+}
+
+.text-end {
+    text-align: right;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.mb-4 {
+    margin-bottom: 1.5rem;
+}
+
+.mt-5 {
+    margin-top: 3rem;
+}
+
+.d-flex {
+    display: flex;
+}
+
+.gap-3 {
+    gap: 1rem;
+}
+
+.justify-content-center {
+    justify-content: center;
+}
+
+.badge {
+    display: inline-block;
+    padding: 0.35rem 0.65rem;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.bg-primary {
+    background-color: #0d6efd;
+    color: white;
+}
+
+#blazor-error-ui {
+    background: lightyellow;
+    bottom: 0;
+    box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2);
+    display: none;
+    left: 0;
+    padding: 0.6rem 1.25rem 0.7rem 1.25rem;
+    position: fixed;
+    right: 0;
+    z-index: 1000;
+}
+
+    #blazor-error-ui .dismiss {
+        cursor: pointer;
+    }
+
+.blazor-error-boundary {
+    background-color: lightyellow;
+    border: 1px dashed red;
+    margin: 1rem;
+    padding: 1rem;
+}
+
+    .blazor-error-boundary::after {
+        content: "An error has occurred.";
+    }
