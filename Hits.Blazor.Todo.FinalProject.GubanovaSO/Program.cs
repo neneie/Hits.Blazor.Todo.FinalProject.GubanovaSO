@@ -45,6 +45,13 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 builder.Services.AddScoped<CourseService>();
+builder.Services.AddScoped<EnrollmentService>();
+builder.Services.AddScoped<TestService>();
+builder.Services.AddScoped<UserProgressService>();
+builder.Services.AddScoped<AchievementService>();
+builder.Services.AddScoped<StatisticsService>();
+
+builder.Services.AddScoped<CourseService>();
 builder.Services.AddScoped<LessonService>();
 builder.Services.AddScoped<TestService>();
 builder.Services.AddScoped<EnrollmentService>();
