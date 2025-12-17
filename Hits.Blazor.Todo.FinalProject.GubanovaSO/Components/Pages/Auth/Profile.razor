@@ -1,0 +1,92 @@
+﻿@page "/profile"
+@using Hits.Blazor.Todo.FinalProject.GubanovaSO.Models
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+@inject UserManager<ApplicationUser> UserManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<PageTitle>Profile - Hits.Todo</PageTitle>
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            @if (user != null)
+            {
+                <div class="card shadow-lg">
+                    <div class="card-header bg-primary text-white">
+                        <h2 class="mb-0">My Profile</h2>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="row mb-4">
+                            <div class="col-md-3 text-center">
+                                <div class="avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center"
+                                     style="width: 120px; height: 120px; margin: 0 auto; font-size: 48px;">
+                                    User
+                                </div>
+                            </div>
+
+                            <div class="col-md-9">
+                                <h3>@user.UserName</h3>
+                                <p class="text-muted">@user.Email</p>
+                                <hr />
+                                <p>
+                                    <strong>Registration:</strong>
+                                    Registered User
+                                </p>
+                                <p>
+                                    <strong>Email Confirmed:</strong>
+                                    @if (user.EmailConfirmed)
+                                    {
+                                        <span class="badge bg-success">Yes</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-warning">Pending</span>
+                                    }
+                                </p>
+                            </div>
+                        </div>
+
+                        <hr />
+
+                        <div class="alert alert-info">
+                            Profile management section is under development. Contact administrator to change data.
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <a href="/courses" class="btn btn-primary">
+                                To Courses
+                            </a>
+                            <a href="/my-learning" class="btn btn-secondary">
+                                My Learning
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-danger">
+                    Error loading profile
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private ApplicationUser? user;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var authUser = authState.User;
+
+        if (authUser.Identity?.IsAuthenticated == true)
+        {
+            user = await UserManager.GetUserAsync(authUser);
+        }
+    }
+}

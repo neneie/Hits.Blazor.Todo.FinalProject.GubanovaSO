@@ -18,13 +18,12 @@ namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Data
         public DbSet<Enrollment> Enrollments { get; set; }
         public DbSet<UserProgress> UserProgresses { get; set; }
         public DbSet<TestResult> TestResults { get; set; }
-        public DbSet<Achievement> Achievements { get; set; }
-        public DbSet<UserAchievement> UserAchievements { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {    
+        {
             base.OnModelCreating(modelBuilder);
 
+            // Индексы для производительности
             modelBuilder.Entity<Enrollment>()
                 .HasIndex(e => new { e.UserId, e.CourseId })
                 .IsUnique();
@@ -35,6 +34,7 @@ namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Data
             modelBuilder.Entity<UserProgress>()
                 .HasIndex(up => new { up.UserId, up.LessonId });
 
+            // Отношения каскадного удаления
             modelBuilder.Entity<Course>()
                 .HasMany(c => c.Lessons)
                 .WithOne(l => l.Course)
@@ -49,16 +49,6 @@ namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Data
                 .HasMany(q => q.Options)
                 .WithOne(qo => qo.Question)
                 .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<UserProgress>()
-                .HasOne(up => up.Lesson)
-                .WithMany()
-                .OnDelete(DeleteBehavior.NoAction);
-
-            modelBuilder.Entity<TestResult>()
-                .HasOne(tr => tr.Test)
-                .WithMany()
-                .OnDelete(DeleteBehavior.NoAction);
         }
     }
 }

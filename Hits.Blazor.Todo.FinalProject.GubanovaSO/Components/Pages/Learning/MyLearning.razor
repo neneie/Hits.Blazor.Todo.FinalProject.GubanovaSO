@@ -1,0 +1,114 @@
+﻿@page "/my-learning"
+@using Hits.Blazor.Todo.FinalProject.GubanovaSO.Models
+@using Hits.Blazor.Todo.FinalProject.GubanovaSO.Data.Services
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+@inject EnrollmentService EnrollmentService
+@inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<PageTitle>My Learning - Hits.Todo</PageTitle>
+
+<div class="container mt-5">
+    <h1>My Learning</h1>
+    <p class="text-muted">Your enrolled courses and learning progress</p>
+
+    @if (enrollments == null)
+    {
+        <div class="alert alert-info">
+            <span class="spinner-border spinner-border-sm me-2"></span>
+            Loading courses...
+        </div>
+    }
+    else if (enrollments.Count == 0)
+    {
+        <div class="alert alert-warning">
+            You are not enrolled in any courses. <a href="/courses">Choose a course</a>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var enrollment in enrollments)
+            {
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        @if (!string.IsNullOrEmpty(enrollment.Course.ImageUrl))
+                        {
+                            <img src="@enrollment.Course.ImageUrl" class="card-img-top" alt="@enrollment.Course.Title" style="height: 200px; object-fit: cover;">
+                        }
+                        else
+                        {
+                            <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 200px;">
+                                <span class="text-white">No Image</span>
+                            </div>
+                        }
+
+                        <div class="card-body">
+                            <h5 class="card-title">@enrollment.Course.Title</h5>
+
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <strong>Progress:</strong>
+                                    <span>@enrollment.ProgressPercentage%</span>
+                                </div>
+                                <div class="progress">
+                                    <div class="progress-bar" role="progressbar"
+                                         style="width: @enrollment.ProgressPercentage%"
+                                         aria-valuenow="@enrollment.ProgressPercentage"
+                                         aria-valuemin="0"
+                                         aria-valuemax="100"></div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                @if (enrollment.IsCompleted)
+                                {
+                                    <span class="badge bg-success">Completed</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning">In Progress</span>
+                                }
+                                <small class="text-muted">Enrolled: @enrollment.EnrollmentDate.ToString("dd.MM.yyyy")</small>
+                            </div>
+                        </div>
+
+                        <div class="card-footer bg-white border-top">
+                            <a href="/courses/@enrollment.Course.Id" class="btn btn-primary w-100">
+                                Continue Learning
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+
+    <div class="mt-4">
+        <a href="/courses" class="btn btn-secondary">
+            Back to Catalog
+        </a>
+    </div>
+</div>
+
+@code {
+    private List<Enrollment>? enrollments;
+    private string? userId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity?.IsAuthenticated == true)
+        {
+            userId = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+            if (!string.IsNullOrEmpty(userId))
+            {
+                enrollments = await EnrollmentService.GetUserEnrollmentsAsync(userId);
+            }
+        }
+    }
+}

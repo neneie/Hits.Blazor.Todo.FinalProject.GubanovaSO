@@ -1,0 +1,167 @@
+﻿@page "/register"
+@using System.ComponentModel.DataAnnotations
+@using EducationPlatform.Data
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.EntityFrameworkCore
+@inject UserManager<IdentityUser> UserManager
+@inject NavigationManager Navigation
+@inject ApplicationDbContext DbContext
+@layout MainLayout
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">📝 Регистрация</h3>
+                </div>
+                <div class="card-body">
+                    @if (!string.IsNullOrEmpty(ErrorMessage))
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            @ErrorMessage
+                            <button type="button" class="btn-close" @onclick="() => ErrorMessage = string.Empty"></button>
+                        </div>
+                    }
+
+                    @if (IsRegistered)
+                    {
+                        <div class="alert alert-success">
+                            ✅ Регистрация успешна! Сейчас перенаправим вас...
+                        </div>
+                    }
+                    else
+                    {
+                        <EditForm Model="@registerModel" OnSubmit="@HandleRegister">
+                            <DataAnnotationsValidator />
+
+                            <div class="mb-3">
+                                <label class="form-label">Имя</label>
+                                <InputText class="form-control" @bind-Value="registerModel.FirstName" placeholder="Ваше имя" />
+                                <ValidationMessage For="@(() => registerModel.FirstName)" />
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Фамилия</label>
+                                <InputText class="form-control" @bind-Value="registerModel.LastName" placeholder="Ваша фамилия" />
+                                <ValidationMessage For="@(() => registerModel.LastName)" />
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Email</label>
+                                <InputText type="email" class="form-control" @bind-Value="registerModel.Email" placeholder="email@example.com" />
+                                <ValidationMessage For="@(() => registerModel.Email)" />
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Пароль</label>
+                                <InputText type="password" class="form-control" @bind-Value="registerModel.Password" placeholder="Минимум 8 символов" />
+                                <ValidationMessage For="@(() => registerModel.Password)" />
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Подтвердите пароль</label>
+                                <InputText type="password" class="form-control" @bind-Value="registerModel.ConfirmPassword" placeholder="Повторите пароль" />
+                                <ValidationMessage For="@(() => registerModel.ConfirmPassword)" />
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">О себе (опционально)</label>
+                                <InputTextArea class="form-control" @bind-Value="registerModel.Bio" placeholder="Расскажите о себе" rows="3" />
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-100 mb-2" disabled="@IsLoading">
+                                @if (IsLoading)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-2"></span>
+                                    Регистрация...
+                                                        }
+                                else
+                                {
+                                    <span>✍️ Зарегистрироваться</span>
+                                }
+                            </button>
+                        </EditForm>
+
+                        <hr />
+                        <p class="text-center">
+                            Уже есть аккаунт? <a href="/login">Войдите здесь</a>
+                        </p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private RegisterModel registerModel = new();
+    private string ErrorMessage = string.Empty;
+    private bool IsLoading = false;
+    private bool IsRegistered = false;
+
+    private class RegisterModel
+    {
+        public string FirstName { get; set; } = string.Empty;
+        public string LastName { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
+        public string ConfirmPassword { get; set; } = string.Empty;
+        public string? Bio { get; set; }
+    }
+
+    private async Task HandleRegister()
+    {
+        IsLoading = true;
+        ErrorMessage = string.Empty;
+
+        try
+        {
+            // Проверка совпадения паролей
+            if (registerModel.Password != registerModel.ConfirmPassword)
+            {
+                ErrorMessage = "Пароли не совпадают!";
+                IsLoading = false;
+                return;
+            }
+
+            // Создаем пользователя Identity
+            var user = new IdentityUser
+            {
+                UserName = registerModel.Email,
+                Email = registerModel.Email
+            };
+
+            var result = await UserManager.CreateAsync(user, registerModel.Password);
+
+            if (result.Succeeded)
+            {
+                // Сохраняем дополнительные данные в приватное хранилище
+                var userClaims = new Dictionary<string, string>
+                {
+                    { "FirstName", registerModel.FirstName },
+                    { "LastName", registerModel.LastName },
+                    { "Bio", registerModel.Bio ?? string.Empty }
+                };
+
+                // Можно сохранить в отдельной таблице UserProfiles если нужно
+
+                IsRegistered = true;
+                await Task.Delay(2000);
+                Navigation.NavigateTo("/login");
+            }
+            else
+            {
+                ErrorMessage = string.Join(", ", result.Errors.Select(e => e.Description));
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Ошибка регистрации: {ex.Message}";
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+}

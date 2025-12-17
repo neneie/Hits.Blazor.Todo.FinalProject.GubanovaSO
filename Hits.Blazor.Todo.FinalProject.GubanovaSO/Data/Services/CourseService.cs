@@ -31,11 +31,10 @@ namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Data.Services
                 .FirstOrDefaultAsync(c => c.Id == id);
         }
 
-        public async Task<List<Course>> SearchCoursesAsync(string searchTerm)
+        public async Task<List<Course>> GetCoursesByInstructorAsync(string instructorId)
         {
             return await _context.Courses
-                .Include(c => c.Lessons)
-                .Where(c => (c.Title.Contains(searchTerm) || c.Description.Contains(searchTerm)) && c.IsActive)
+                .Where(c => c.InstructorId == instructorId)
                 .OrderByDescending(c => c.CreatedDate)
                 .ToListAsync();
         }
@@ -62,6 +61,14 @@ namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Data.Services
                 _context.Courses.Remove(course);
                 await _context.SaveChangesAsync();
             }
+        }
+
+        public async Task<List<Course>> SearchCoursesAsync(string searchTerm)
+        {
+            return await _context.Courses
+                .Where(c => c.Title.Contains(searchTerm) || c.Description.Contains(searchTerm))
+                .Where(c => c.IsActive)
+                .ToListAsync();
         }
     }
 }
