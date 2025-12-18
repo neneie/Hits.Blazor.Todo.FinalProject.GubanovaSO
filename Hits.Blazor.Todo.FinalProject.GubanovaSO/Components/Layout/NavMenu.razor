@@ -19,7 +19,7 @@
 
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="courses">
-                <span class="bi bi-book-fill-nav-menu" aria-hidden="true"></span> Лекции
+                <span class="bi bi-book-fill-nav-menu" aria-hidden="true"></span> Курсы
             </NavLink>
         </div>
 
@@ -32,19 +32,19 @@
                 </div>
 
                 <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="courses/add">
-                        <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Добавить лекцию
+                    <NavLink class="nav-link" href="courses/create">
+                        <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Создать курс
                     </NavLink>
                 </div>
 
                 <div class="nav-item px-3">
                     <NavLink class="nav-link" href="Account/Manage">
-                        <span class="bi bi-person-fill-nav-menu" aria-hidden="true"></span> @context.User.Identity?.Name
+                        <span class="bi bi-person-fill-nav-menu" aria-hidden="true"></span> Профиль
                     </NavLink>
                 </div>
 
                 <div class="nav-item px-3">
-                    <form action="Account/Logout" method="post">
+                    <form action="Account/Logout" method="post" class="nav-form">
                         <AntiforgeryToken />
                         <input type="hidden" name="ReturnUrl" value="@currentUrl" />
                         <button type="submit" class="nav-link">

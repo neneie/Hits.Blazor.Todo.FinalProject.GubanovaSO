@@ -4,9 +4,9 @@
 @inject CourseService courseService
 @inject NavigationManager navigate
 
-<PageTitle>Лекции</PageTitle>
+<PageTitle>Курсы</PageTitle>
 
-<h1>Лекции</h1>
+<h1>Курсы</h1>
 
 <div class="container">
     @if (courses == null)
@@ -18,7 +18,7 @@
         <AuthorizeView>
             <Authorized>
                 <div class="btn-group m-2">
-                    <button class="btn btn-primary" @onclick="AddCourse">Новая лекция</button>
+                    <button class="btn btn-primary" @onclick="AddCourse">Новый курс</button>
                 </div>
             </Authorized>
         </AuthorizeView>

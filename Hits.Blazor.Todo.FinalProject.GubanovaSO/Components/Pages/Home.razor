@@ -1,51 +1,86 @@
 ﻿@page "/"
+@using Microsoft.AspNetCore.Components.Authorization
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 <PageTitle>Главная - Образовательная платформа</PageTitle>
 
-<h1>Добро пожаловать!</h1>
+<AuthorizeView>
+    <Authorized>
+        <h1>Добро пожаловать, @userName!</h1>
+    </Authorized>
+    <NotAuthorized>
+        <h1>Добро пожаловать!</h1>
+    </NotAuthorized>
+</AuthorizeView>
 
 <div class="container">
-    <div class="card mb-4">
-        <div class="card-header">
-            О платформе
-        </div>
-        <div class="card-body">
-            <p>Платформа для онлайн обучения и развития навыков</p>
-            <p>Здесь вы можете найти качественные курсы и лекции</p>
-        </div>
-        <div class="card-footer">
-            <a class="btn btn-primary" href="/courses">Перейти к лекциям</a>
-        </div>
-    </div>
-
     <AuthorizeView>
         <Authorized>
-            <div class="card">
-                <div class="card-header">
-                    Быстрый доступ
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Мои курсы</h5>
+                        </div>
+                        <div class="card-footer">
+                            <a class="btn btn-primary w-100" href="/my-learning">Перейти</a>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <p>Вы вошли как: @context.User.Identity?.Name</p>
-                </div>
-                <div class="card-footer">
-                    <a class="btn btn-primary m-2" href="/my-learning">Мои курсы</a>
-                    <a class="btn btn-primary m-2" href="/courses">Все лекции</a>
+                <div class="col-md-6 mb-3">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Все курсы</h5>
+                        </div>
+                        <div class="card-footer">
+                            <a class="btn btn-primary w-100" href="/courses">Перейти</a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </Authorized>
         <NotAuthorized>
-            <div class="card">
-                <div class="card-header">
-                    Начните обучение
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Вход</h5>
+                        </div>
+                        <div class="card-footer">
+                            <a class="btn btn-primary w-100" href="/Account/Login">Войти</a>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <p>Войдите или зарегистрируйтесь для доступа ко всем функциям</p>
-                </div>
-                <div class="card-footer">
-                    <a class="btn btn-primary m-2" href="/Account/Login">Вход</a>
-                    <a class="btn btn-primary m-2" href="/Account/Register">Регистрация</a>
+                <div class="col-md-6 mb-3">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Регистрация</h5>
+                        </div>
+                        <div class="card-footer">
+                            <a class="btn btn-primary w-100" href="/Account/Register">Зарегистрироваться</a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </NotAuthorized>
     </AuthorizeView>
 </div>
+
+@code {
+    private string userName = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity?.IsAuthenticated == true)
+        {
+            var email = user.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value ?? "";
+            if (!string.IsNullOrEmpty(email))
+            {
+                userName = email.Split('@')[0];
+            }
+        }
+    }
+}

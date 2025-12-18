@@ -26,11 +26,6 @@ namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Data
             modelBuilder.Entity<UserProgress>()
                 .HasIndex(up => new { up.UserId, up.LessonId });
 
-            modelBuilder.Entity<Course>()
-                .HasMany(c => c.Lessons)
-                .WithOne(l => l.Course)
-                .OnDelete(DeleteBehavior.Cascade);
-
         }
     }
 }

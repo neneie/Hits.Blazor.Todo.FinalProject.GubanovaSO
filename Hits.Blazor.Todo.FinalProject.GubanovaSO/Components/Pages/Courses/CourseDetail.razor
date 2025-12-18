@@ -7,13 +7,13 @@
 @inject NavigationManager Navigation
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
-<PageTitle>Курс - Образовательная платформа</PageTitle>
+<PageTitle>@(course?.Title ?? "Курс") - Образовательная платформа</PageTitle>
 
 @if (course == null)
 {
     <div class="container mt-4">
         <div class="alert alert-danger">Курс не найден</div>
-        <a href="/courses" class="btn btn-secondary">Вернуться</a>
+        <a href="/courses" class="btn btn-primary">Вернуться</a>
     </div>
 }
 else
@@ -22,81 +22,80 @@ else
         <div class="row">
             <div class="col-lg-8">
                 <h2>@course.Title</h2>
-                <p class="text-muted">@course.Category | @course.DurationHours часов | @course.Lessons.Count уроков</p>
+                <p class="text-muted">@course.Category | @course.DurationHours часов | Уровень: @course.DifficultyLevel</p>
 
                 <h4 class="mt-4">Описание</h4>
                 <p>@course.Description</p>
 
-                <h4 class="mt-4">Уроки</h4>
-                @if (course.Lessons.Count == 0)
-                {
-                    <p class="text-muted">Уроков нет</p>
-                }
-                else
-                {
-                    <ul class="list-group">
-                        @foreach (var lesson in course.Lessons.OrderBy(l => l.OrderNumber))
+                <h4 class="mt-4">Содержание курса</h4>
+                <div class="card">
+                    <div class="card-body">
+                        @if (!string.IsNullOrEmpty(course.Content))
                         {
-                            <li class="list-group-item">
-                                <strong>#@lesson.OrderNumber - @lesson.Title</strong>
-                                <p class="text-muted small mb-0">@(lesson.Content.Length > 100 ? lesson.Content.Substring(0, 100) + "..." : lesson.Content)</p>
-                            </li>
+                            @((MarkupString)course.Content.Replace("\n", "<br>"))
                         }
-                    </ul>
-                }
+                        else
+                        {
+                            <p class="text-muted">Содержание отсутствует</p>
+                        }
+                    </div>
+                </div>
+
             </div>
 
             <div class="col-lg-4">
                 <div class="card">
+                    <div class="card-header">
+                        Информация
+                    </div>
                     <div class="card-body">
-                        <h5>Информация</h5>
-                        <hr />
                         <p><strong>Категория:</strong> @course.Category</p>
                         <p><strong>Часов:</strong> @course.DurationHours</p>
-                        <p><strong>Уроков:</strong> @course.Lessons.Count</p>
-
-                        @if (!string.IsNullOrEmpty(errorMessage))
+                        <p><strong>Уровень сложности:</strong> @course.DifficultyLevel</p>
+                    </div>
+                    <div class="card-footer">
+                        @if (errorMessage != null)
                         {
-                            <div class="alert alert-danger">@errorMessage</div>
+                            <div class="alert alert-danger alert-sm">@errorMessage</div>
                         }
 
-                        @if (!string.IsNullOrEmpty(successMessage))
+                        @if (successMessage != null)
                         {
-                            <div class="alert alert-success">@successMessage</div>
+                            <div class="alert alert-success alert-sm">@successMessage</div>
                         }
-
-                        <hr />
 
                         <AuthorizeView>
                             <Authorized>
                                 @if (isEnrolled)
                                 {
-                                    <div class="alert alert-success mb-3">Вы уже записаны</div>
-                                    <a href="/my-learning" class="btn btn-primary w-100">Перейти к обучению</a>
+                                    <button class="btn btn-primary w-100" disabled>Вы записаны</button>
                                 }
                                 else
                                 {
                                     <button class="btn btn-success w-100" @onclick="EnrollCourse" disabled="@isLoading">
                                         @if (isLoading)
                                         {
-                                            <span class="spinner-border spinner-border-sm me-2"></span>
                                             <span>Записываю...</span>
                                         }
                                         else
                                         {
+
                                             <span>Записаться</span>
                                         }
                                     </button>
                                 }
                             </Authorized>
                             <NotAuthorized>
-                                <p class="small text-muted mb-3">Войдите, чтобы записаться</p>
-                                <a href="/Account/Login" class="btn btn-primary w-100">Войти</a>
+                                <a href="/Account/Login" class="btn btn-primary w-100">Войти, чтобы записаться</a>
                             </NotAuthorized>
                         </AuthorizeView>
                     </div>
                 </div>
             </div>
+        </div>
+
+        <div class="mt-4">
+            <a href="/courses" class="btn btn-primary">Вернуться к курсам</a>
         </div>
     </div>
 }
@@ -125,7 +124,7 @@ else
             {
                 userId = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 
-                if (!string.IsNullOrEmpty(userId))
+                if (!string.IsNullOrEmpty(userId) && course != null)
                 {
                     var enrollment = await EnrollmentService.GetEnrollmentAsync(userId, CourseId);
                     isEnrolled = enrollment != null;
@@ -151,6 +150,7 @@ else
             isLoading = true;
             errorMessage = null;
             successMessage = null;
+            StateHasChanged();
 
             var enrollmentId = await EnrollmentService.EnrollUserAsync(userId, CourseId);
 
