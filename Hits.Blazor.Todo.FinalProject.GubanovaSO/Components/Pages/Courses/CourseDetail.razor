@@ -1,4 +1,5 @@
-﻿@page "/courses/{CourseId:int}"
+﻿﻿
+@page "/courses/{CourseId:int}"
 @using Hits.Blazor.Todo.FinalProject.GubanovaSO.Models
 @using Hits.Blazor.Todo.FinalProject.GubanovaSO.Data.Services
 @using Microsoft.AspNetCore.Components.Authorization
@@ -27,19 +28,22 @@ else
                 <h4 class="mt-4">Описание</h4>
                 <p>@course.Description</p>
 
+                <h4 class="mt-4">Описание</h4>
+                <p>@course.Description</p>
+
                 <h4 class="mt-4">Содержание курса</h4>
-                <div class="card">
-                    <div class="card-body">
-                        @if (!string.IsNullOrEmpty(course.Content))
-                        {
-                            @((MarkupString)course.Content.Replace("\n", "<br>"))
-                        }
-                        else
-                        {
-                            <p class="text-muted">Содержание отсутствует</p>
-                        }
+                @if (string.IsNullOrWhiteSpace(course.Content))
+                {
+                    <p class="text-muted">Содержание не заполнено</p>
+                }
+                else
+                {
+                    <div class="card">
+                        <div class="card-body">
+                            @((MarkupString)course.Content.Replace("\n", "<br />"))
+                        </div>
                     </div>
-                </div>
+                }
 
             </div>
 
@@ -68,7 +72,7 @@ else
                             <Authorized>
                                 @if (isEnrolled)
                                 {
-                                    <button class="btn btn-primary w-100" disabled>Вы записаны</button>
+                                    <button class="btn btn-primary w-100" disabled>Вы уже записаны</button>
                                 }
                                 else
                                 {
@@ -79,16 +83,16 @@ else
                                         }
                                         else
                                         {
-
                                             <span>Записаться</span>
                                         }
                                     </button>
                                 }
                             </Authorized>
                             <NotAuthorized>
-                                <a href="/Account/Login" class="btn btn-primary w-100">Войти, чтобы записаться</a>
+                                <a href="/Account/Login" class="btn btn-primary w-100">Войти</a>
                             </NotAuthorized>
                         </AuthorizeView>
+
                     </div>
                 </div>
             </div>
@@ -141,15 +145,12 @@ else
     {
         if (string.IsNullOrEmpty(userId))
         {
-            errorMessage = "Войдите в систему";
             return;
         }
 
         try
         {
             isLoading = true;
-            errorMessage = null;
-            successMessage = null;
             StateHasChanged();
 
             var enrollmentId = await EnrollmentService.EnrollUserAsync(userId, CourseId);
@@ -157,25 +158,21 @@ else
             if (enrollmentId > 0)
             {
                 isEnrolled = true;
-                successMessage = "Вы записались на курс!";
                 StateHasChanged();
 
-                await Task.Delay(1500);
+                await Task.Delay(1000);
                 Navigation.NavigateTo("/my-learning");
-            }
-            else
-            {
-                errorMessage = "Ошибка при записи";
             }
         }
         catch (Exception ex)
         {
-            errorMessage = "Ошибка: " + ex.Message;
+            Console.WriteLine($"Ошибка записи: {ex.Message}");
         }
         finally
         {
             isLoading = false;
-            StateHasChanged();
         }
     }
+
+    
 }

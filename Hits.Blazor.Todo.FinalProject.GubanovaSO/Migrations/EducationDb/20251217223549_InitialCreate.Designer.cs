@@ -51,9 +51,6 @@ namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Migrations.EducationDb
                     b.Property<int>("DurationHours")
                         .HasColumnType("int");
 
-                    b.Property<string>("ImageUrl")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("InstructorId")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");

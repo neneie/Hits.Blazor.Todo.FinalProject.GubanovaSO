@@ -1,4 +1,5 @@
-﻿@page "/courses/create"
+﻿﻿
+@page "/courses/create"
 @page "/courses/edit/{Id:int}"
 @using Hits.Blazor.Todo.FinalProject.GubanovaSO.Models
 @using Hits.Blazor.Todo.FinalProject.GubanovaSO.Data.Services
@@ -11,60 +12,55 @@
 
 @if (CourseItem != null)
 {
-    <EditForm Model="CourseItem" FormName="CourseForm" OnValidSubmit="ValidSubmit">
+    <EditForm Model="CourseItem" OnValidSubmit="ValidSubmit" FormName="courseForm">
+
         <DataAnnotationsValidator />
         <ValidationSummary />
 
-        <h2>@(Id == 0 ? "Новый курс" : "Редактировать курс")</h2>
+        <h3>@(Id == 0 ? "Новый курс" : "Редактировать курс")</h3>
 
         <InputNumber @bind-Value="CourseItem.Id" hidden />
 
-        <div class="form-group m-2">
-            <label class="form-label">Название</label>
+        <div class="form-group">
+            <label>Название</label>
             <InputText @bind-Value="CourseItem.Title" class="form-control" />
             <ValidationMessage For="() => CourseItem.Title" />
         </div>
 
-        <div class="form-group m-2">
-            <label class="form-label">Описание</label>
+        <div class="form-group">
+            <label>Описание</label>
             <InputTextArea @bind-Value="CourseItem.Description" class="form-control" rows="3" />
             <ValidationMessage For="() => CourseItem.Description" />
         </div>
 
-        <div class="form-group m-2">
-            <label class="form-label">Содержание курса</label>
-            <InputTextArea @bind-Value="CourseItem.Content" class="form-control" rows="10" />
+        <div class="form-group">
+            <label>Содержание курса</label>
+            <InputTextArea @bind-Value="CourseItem.Content" class="form-control" rows="8" />
             <ValidationMessage For="() => CourseItem.Content" />
         </div>
 
-        <div class="form-group m-2">
-            <label class="form-label">Категория</label>
+        <div class="form-group">
+            <label>Категория</label>
             <InputText @bind-Value="CourseItem.Category" class="form-control" />
             <ValidationMessage For="() => CourseItem.Category" />
         </div>
 
-        <div class="form-group m-2">
-            <label class="form-label">Часов (1-1000)</label>
-            <InputNumber @bind-Value="CourseItem.DurationHours" class="form-control" min="1" max="1000" />
+        <div class="form-group">
+            <label>Часов (1–1000)</label>
+            <InputNumber @bind-Value="CourseItem.DurationHours" class="form-control" />
             <ValidationMessage For="() => CourseItem.DurationHours" />
         </div>
 
-        <div class="form-group m-2">
-            <label class="form-label">Уровень (1-3)</label>
-            <InputNumber @bind-Value="CourseItem.DifficultyLevel" class="form-control" min="1" max="3" />
+        <div class="form-group">
+            <label>Уровень (1–3)</label>
+            <InputNumber @bind-Value="CourseItem.DifficultyLevel" class="form-control" />
             <ValidationMessage For="() => CourseItem.DifficultyLevel" />
         </div>
 
-        <div class="form-group m-2">
-            <label class="form-label">URL картинки</label>
-            <InputText @bind-Value="CourseItem.ImageUrl" class="form-control" />
-        </div>
-
-        <div class="btn-group">
-            <button class="btn btn-primary m-2" type="submit">Сохранить</button>
-            <a class="btn btn-primary m-2" href="/courses">Отмена</a>
-        </div>
+        <button class="btn btn-primary" type="submit">Сохранить</button>
+        <a class="btn btn-secondary" href="/courses">Отмена</a>
     </EditForm>
+
 }
 
 @code {
@@ -103,7 +99,6 @@
                     CourseItem.Category = course.Category;
                     CourseItem.DurationHours = course.DurationHours;
                     CourseItem.DifficultyLevel = course.DifficultyLevel;
-                    CourseItem.ImageUrl = course.ImageUrl;
                     CourseItem.CreatedDate = course.CreatedDate;
                     CourseItem.InstructorId = course.InstructorId;
                 }

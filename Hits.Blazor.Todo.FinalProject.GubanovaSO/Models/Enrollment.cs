@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Models
 {
@@ -7,13 +7,11 @@ namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Models
     {
         public int Id { get; set; }
 
-        public int CourseId { get; set; }
-
-        [ForeignKey(nameof(CourseId))]
-        public Course Course { get; set; } = null!;
-
         [Required]
         public string UserId { get; set; } = string.Empty;
+
+        [Required]
+        public int CourseId { get; set; }
 
         public DateTime EnrollmentDate { get; set; } = DateTime.UtcNow;
 
@@ -24,7 +22,10 @@ namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Models
 
         public bool IsCompleted { get; set; } = false;
 
-        // Навигационные свойства
-        public ICollection<UserProgress> UserProgresses { get; set; } = new List<UserProgress>();
+        [JsonIgnore]
+        public Course? Course { get; set; }
+
+        [JsonIgnore]
+        public ICollection<UserProgress>? UserProgresses { get; set; }
     }
 }

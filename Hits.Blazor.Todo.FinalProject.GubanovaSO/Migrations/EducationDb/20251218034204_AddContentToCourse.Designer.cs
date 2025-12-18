@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Migrations.EducationDb
 {
     [DbContext(typeof(EducationDbContext))]
-    [Migration("20251218020242_AddContentToCourse")]
+    [Migration("20251218034204_AddContentToCourse")]
     partial class AddContentToCourse
     {
         /// <inheritdoc />
@@ -39,7 +39,6 @@ namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Migrations.EducationDb
 
                     b.Property<string>("Content")
                         .IsRequired()
-                        .HasMaxLength(10000)
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedDate")
@@ -55,9 +54,6 @@ namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Migrations.EducationDb
 
                     b.Property<int>("DurationHours")
                         .HasColumnType("int");
-
-                    b.Property<string>("ImageUrl")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("InstructorId")
                         .IsRequired()
@@ -220,7 +216,7 @@ namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Migrations.EducationDb
             modelBuilder.Entity("Hits.Blazor.Todo.FinalProject.GubanovaSO.Models.Lesson", b =>
                 {
                     b.HasOne("Hits.Blazor.Todo.FinalProject.GubanovaSO.Models.Course", "Course")
-                        .WithMany()
+                        .WithMany("Lessons")
                         .HasForeignKey("CourseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -250,6 +246,8 @@ namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Migrations.EducationDb
             modelBuilder.Entity("Hits.Blazor.Todo.FinalProject.GubanovaSO.Models.Course", b =>
                 {
                     b.Navigation("Enrollments");
+
+                    b.Navigation("Lessons");
                 });
 
             modelBuilder.Entity("Hits.Blazor.Todo.FinalProject.GubanovaSO.Models.Enrollment", b =>

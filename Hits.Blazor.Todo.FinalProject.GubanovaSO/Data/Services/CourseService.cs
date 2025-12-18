@@ -45,7 +45,6 @@ namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Data.Services
                 existing.Category = course.Category;
                 existing.DurationHours = course.DurationHours;
                 existing.DifficultyLevel = course.DifficultyLevel;
-                existing.ImageUrl = course.ImageUrl;
                 existing.UpdatedDate = DateTime.UtcNow;
 
                 _context.Courses.Update(existing);

@@ -2,10 +2,10 @@
 
 #nullable disable
 
-namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Migrations
+namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Migrations.EducationDb
 {
     /// <inheritdoc />
-    public partial class InitialCreated : Migration
+    public partial class AddContentToCourse : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

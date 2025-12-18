@@ -16,7 +16,6 @@ namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Models
 
         public string Category { get; set; } = string.Empty;
 
-        public string? ImageUrl { get; set; }
 
         [Range(1, 3, ErrorMessage = "Выберите уровень сложности")]
         public int DifficultyLevel { get; set; } = 1;
@@ -35,5 +34,7 @@ namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Models
         public ICollection<Lesson> Lessons { get; set; } = new List<Lesson>();
 
         public ICollection<Enrollment> Enrollments { get; set; } = new List<Enrollment>();
+        public string Content { get; set; } = string.Empty;
+
     }
 }
