@@ -22,9 +22,7 @@ builder.Services.AddDbContext<EducationDbContext>(options =>
 
 builder.Services.AddScoped<CourseService>();
 builder.Services.AddScoped<LessonService>();
-builder.Services.AddScoped<TestService>();
 builder.Services.AddScoped<EnrollmentService>();
-builder.Services.AddScoped<UserProgressService>();
 
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<AuthenticationStateProvider, PersistingRevalidatingAuthenticationStateProvider>();
