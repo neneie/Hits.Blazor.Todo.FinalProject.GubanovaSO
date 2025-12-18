@@ -1,43 +1,47 @@
 ﻿@page "/courses"
 @using Hits.Blazor.Todo.FinalProject.GubanovaSO.Models
 @using Hits.Blazor.Todo.FinalProject.GubanovaSO.Data.Services
-@inject CourseService CourseService
+@inject CourseService courseService
+@inject NavigationManager navigate
 
-<PageTitle>Лекции - Образовательная платформа</PageTitle>
+<PageTitle>Лекции</PageTitle>
 
-<div class="container mt-4">
-    <h1 class="mb-4">Все лекции</h1>
+<h1>Лекции</h1>
 
-    <div class="row mb-4">
-        <div class="col-md-6">
-            <input type="text" class="form-control" placeholder="Поиск..." @oninput="OnSearchChanged" />
-        </div>
-    </div>
-
-    @if (filteredCourses == null)
+<div class="container">
+    @if (courses == null)
     {
-        <div class="text-center">
-            <div class="spinner-border" role="status"></div>
-        </div>
-    }
-    else if (filteredCourses.Count == 0)
-    {
-        <div class="alert alert-info">Курсы не найдены</div>
+        <p>Loading ...</p>
     }
     else
     {
-        <div class="row">
-            @foreach (var course in filteredCourses)
+        <AuthorizeView>
+            <Authorized>
+                <div class="btn-group m-2">
+                    <button class="btn btn-primary" @onclick="AddCourse">Новая лекция</button>
+                </div>
+            </Authorized>
+        </AuthorizeView>
+
+        <div class="card-group">
+            @foreach (var course in courses)
             {
-                <div class="col-md-6 col-lg-4 mb-4">
-                    <div class="card h-100">
-                        <div class="card-body">
-                            <h5 class="card-title">@course.Title</h5>
-                            <p class="card-text small text-muted">@course.Category</p>
-                            <p class="card-text">@(course.Description.Length > 100 ? course.Description.Substring(0, 100) + "..." : course.Description)</p>
-                            <p class="small text-muted">Уроков: @course.Lessons.Count</p>
-                            <a href="/courses/@course.Id" class="btn btn-primary w-100">Подробнее</a>
-                        </div>
+                <div class="card">
+                    <div class="card-header">
+                        @course.Title
+                    </div>
+                    <div class="card-body">
+                        <p>@course.Description</p>
+                        <p class="text-muted small">@course.Category | @course.DurationHours часов</p>
+                    </div>
+                    <div class="card-footer">
+                        <a class="btn btn-primary" href="courses/@course.Id">Подробнее</a>
+                        <AuthorizeView>
+                            <Authorized>
+                                <a class="btn btn-primary" href="courses/edit/@course.Id">Изменить</a>
+                                <button class="btn btn-danger" @onclick="async () => await DeleteCourse(course.Id)">Удалить</button>
+                            </Authorized>
+                        </AuthorizeView>
                     </div>
                 </div>
             }
@@ -46,43 +50,22 @@
 </div>
 
 @code {
-    private List<Course>? allCourses;
-    private List<Course>? filteredCourses;
-    private string searchTerm = "";
+    List<Course>? courses;
 
     protected override async Task OnInitializedAsync()
     {
-        try
-        {
-            allCourses = await CourseService.GetAllCoursesAsync();
-            filteredCourses = allCourses;
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Ошибка: {ex.Message}");
-        }
+        await base.OnInitializedAsync();
+        courses = await courseService.GetAllCoursesAsync();
     }
 
-    private void OnSearchChanged(ChangeEventArgs e)
+    void AddCourse()
     {
-        searchTerm = e.Value?.ToString() ?? "";
-        FilterCourses();
+        navigate.NavigateTo("courses/create");
     }
 
-    private void FilterCourses()
+    async Task DeleteCourse(int id)
     {
-        if (allCourses == null) return;
-
-        if (string.IsNullOrWhiteSpace(searchTerm))
-        {
-            filteredCourses = allCourses;
-        }
-        else
-        {
-            var term = searchTerm.ToLower();
-            filteredCourses = allCourses
-                .Where(c => c.Title.ToLower().Contains(term) || c.Description.ToLower().Contains(term))
-                .ToList();
-        }
+        await courseService.DeleteCourseAsync(id);
+        courses = await courseService.GetAllCoursesAsync();
     }
 }

@@ -1,46 +1,51 @@
 ﻿@page "/"
 
-<PageTitle>Образовательная платформа - Онлайн обучение</PageTitle>
+<PageTitle>Главная - Образовательная платформа</PageTitle>
 
-<div class="container mt-5">
-    <div class="row">
-        <div class="col-lg-8 mx-auto text-center">
-            <h1 class="mb-4">Добро пожаловать!</h1>
-            <p class="lead mb-4">Платформа для онлайн обучения</p>
+<h1>Добро пожаловать!</h1>
 
-            <AuthorizeView>
-                <NotAuthorized>
-                    <div class="d-flex flex-column flex-sm-row gap-2 justify-content-center mb-5">
-                        <a href="/Account/Login" class="btn btn-primary">Войти</a>
-                        <a href="/Account/Register" class="btn btn-success">Регистрация</a>
-                        <a href="/courses" class="btn btn-secondary">Лекции</a>
-                    </div>
-                </NotAuthorized>
-                <Authorized>
-                    <a href="/courses" class="btn btn-primary btn-lg mb-5">Перейти к лекциям</a>
-                </Authorized>
-            </AuthorizeView>
-
-            <hr class="my-5" />
-
-            <div class="row mt-5">
-                <div class="col-md-6 mb-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">Качественные лекции</h5>
-                            <p class="card-text">Обучающие материалы от преподавателей</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6 mb-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">Тесты</h5>
-                            <p class="card-text">Проверяйте ваши знания с помощью тестов</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+<div class="container">
+    <div class="card mb-4">
+        <div class="card-header">
+            О платформе
+        </div>
+        <div class="card-body">
+            <p>Платформа для онлайн обучения и развития навыков</p>
+            <p>Здесь вы можете найти качественные курсы и лекции</p>
+        </div>
+        <div class="card-footer">
+            <a class="btn btn-primary" href="/courses">Перейти к лекциям</a>
         </div>
     </div>
+
+    <AuthorizeView>
+        <Authorized>
+            <div class="card">
+                <div class="card-header">
+                    Быстрый доступ
+                </div>
+                <div class="card-body">
+                    <p>Вы вошли как: @context.User.Identity?.Name</p>
+                </div>
+                <div class="card-footer">
+                    <a class="btn btn-primary m-2" href="/my-learning">Мои курсы</a>
+                    <a class="btn btn-primary m-2" href="/courses">Все лекции</a>
+                </div>
+            </div>
+        </Authorized>
+        <NotAuthorized>
+            <div class="card">
+                <div class="card-header">
+                    Начните обучение
+                </div>
+                <div class="card-body">
+                    <p>Войдите или зарегистрируйтесь для доступа ко всем функциям</p>
+                </div>
+                <div class="card-footer">
+                    <a class="btn btn-primary m-2" href="/Account/Login">Вход</a>
+                    <a class="btn btn-primary m-2" href="/Account/Register">Регистрация</a>
+                </div>
+            </div>
+        </NotAuthorized>
+    </AuthorizeView>
 </div>
