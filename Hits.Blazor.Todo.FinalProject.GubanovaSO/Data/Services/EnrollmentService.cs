@@ -17,6 +17,7 @@ namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Data.Services
         {
             return await _context.Enrollments
                 .Include(e => e.Course)
+                .Include(e => e.UserProgresses)
                 .FirstOrDefaultAsync(e => e.UserId == userId && e.CourseId == courseId);
         }
 
@@ -24,6 +25,7 @@ namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Data.Services
         {
             return await _context.Enrollments
                 .Include(e => e.Course)
+                .Include(e => e.UserProgresses)
                 .Where(e => e.UserId == userId)
                 .OrderByDescending(e => e.EnrollmentDate)
                 .ToListAsync();
@@ -31,10 +33,21 @@ namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Data.Services
 
         public async Task<int> EnrollUserAsync(string userId, int courseId)
         {
+            if (string.IsNullOrEmpty(userId))
+            {
+                throw new ArgumentException("Идентификатор пользователя не может быть пустым");
+            }
+
             var existingEnrollment = await GetEnrollmentAsync(userId, courseId);
             if (existingEnrollment != null)
             {
                 return existingEnrollment.Id;
+            }
+
+            var course = await _context.Courses.FindAsync(courseId);
+            if (course == null)
+            {
+                throw new ArgumentException("Курс не найден");
             }
 
             var enrollment = new Enrollment
@@ -48,6 +61,7 @@ namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Data.Services
 
             _context.Enrollments.Add(enrollment);
             await _context.SaveChangesAsync();
+
             return enrollment.Id;
         }
 
@@ -89,6 +103,25 @@ namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Data.Services
                 _context.Enrollments.Update(enrollment);
                 await _context.SaveChangesAsync();
             }
+        }
+
+        public async Task<bool> DeleteEnrollmentAsync(int enrollmentId)
+        {
+            var enrollment = await _context.Enrollments.FindAsync(enrollmentId);
+            if (enrollment != null)
+            {
+                _context.Enrollments.Remove(enrollment);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            return false;
+        }
+
+        public async Task<int> GetEnrollmentCountAsync(int courseId)
+        {
+            return await _context.Enrollments
+                .Where(e => e.CourseId == courseId)
+                .CountAsync();
         }
     }
 }

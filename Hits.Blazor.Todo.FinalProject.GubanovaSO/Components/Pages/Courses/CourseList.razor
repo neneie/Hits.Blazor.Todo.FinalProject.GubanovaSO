@@ -1,63 +1,72 @@
 ﻿@page "/courses"
-@using Hits.Blazor.Todo.FinalProject.GubanovaSO.Data.Services
 @using Hits.Blazor.Todo.FinalProject.GubanovaSO.Models
-@using Microsoft.AspNetCore.Authorization
-
+@using Hits.Blazor.Todo.FinalProject.GubanovaSO.Data.Services
 @inject CourseService CourseService
-@inject NavigationManager Navigation
 
-<PageTitle>Курсы</PageTitle>
+<PageTitle>Лекции - Образовательная платформа</PageTitle>
 
-<div class="container mt-5">
+<div class="container mt-4">
     <div class="row mb-4">
         <div class="col-md-8">
-            <h2>Курсы</h2>
+            <h1>Все лекции</h1>
+            <p class="text-muted">Выберите интересующий вас курс</p>
         </div>
-        <div class="col-md-4 text-end">
-            <AuthorizeView>
-                <Authorized>
-                    <a href="/courses/create" class="btn btn-success">+ Создать курс</a>
-                </Authorized>
-            </AuthorizeView>
+        <div class="col-md-4">
+            <input type="text" class="form-control" placeholder="Поиск по названию..." @oninput="OnSearchChanged" />
         </div>
     </div>
 
-    <!-- Поиск -->
-    <div class="row mb-4">
-        <div class="col-md-8">
-            <input type="text" 
-                   class="form-control" 
-                   placeholder="Поиск курсов..." 
-                   @oninput="SearchCourses" />
-        </div>
-    </div>
-
-    @if (courses == null)
+    @if (filteredCourses == null)
     {
-        <p>Загрузка...</p>
+        <div class="text-center">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Загрузка...</span>
+            </div>
+        </div>
     }
-    else if (courses.Count == 0)
+    else if (filteredCourses.Count == 0)
     {
-        <p class="text-muted">Курсы не найдены</p>
+        <div class="alert alert-info">
+            Курсы не найдены. Попробуйте изменить условия поиска.
+        </div>
     }
     else
     {
         <div class="row">
-            @foreach (var course in courses)
+            @foreach (var course in filteredCourses)
             {
-                <div class="col-md-4 mb-3">
-                    <div class="card h-100">
-                        <div class="card-body">
-                            <h5 class="card-title">@course.Title</h5>
-                            <p class="card-text text-muted small">@(course.Description.Length > 80 ? course.Description.Substring(0, 80) + "..." : course.Description)</p>
-                            <div class="mb-2">
-                                <span class="badge bg-primary">@GetDifficultyLevel(course.DifficultyLevel)</span>
-                                <span class="badge bg-secondary">@course.DurationHours ч</span>
-                                <span class="badge">@course.Lessons.Count уроков</span>
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100 course-card">
+                        @if (!string.IsNullOrEmpty(course.ImageUrl))
+                        {
+                            <img src="@course.ImageUrl" class="card-img-top" alt="@course.Title" />
+                        }
+                        else
+                        {
+                            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 150px;">
+                                <i class="oi oi-book" style="font-size: 3rem; color: #7c3aed;"></i>
                             </div>
-                        </div>
-                        <div class="card-footer bg-white">
-                            <a href="/courses/@course.Id" class="btn btn-primary btn-sm w-100">Подробнее</a>
+                        }
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title">@course.Title</h5>
+                            <p class="card-text text-muted small">@course.Category</p>
+                            <p class="card-text">@(course.Description.Length > 80 ? course.Description.Substring(0, 80) + "..." : course.Description)</p>
+
+                            <div class="course-meta mt-2 mb-3">
+                                <small class="d-block">
+                                    <span class="badge bg-primary">@GetDifficultyLevel(course.DifficultyLevel)</span>
+                                </small>
+                                <small class="text-muted d-block mt-2">
+                                    <i class="oi oi-clock"></i> @course.DurationHours часов
+                                </small>
+                                <small class="text-muted d-block">
+                                    <i class="oi oi-list-rich"></i> @course.Lessons.Count уроков
+                                </small>
+                            </div>
+
+                            <a href="/courses/@course.Id" class="btn btn-primary mt-auto">
+                                Подробнее
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -67,21 +76,45 @@
 </div>
 
 @code {
-    private List<Course>? courses;
     private List<Course>? allCourses;
+    private List<Course>? filteredCourses;
+    private string searchTerm = "";
 
     protected override async Task OnInitializedAsync()
     {
-        allCourses = await CourseService.GetAllCoursesAsync();
-        courses = allCourses;
+        try
+        {
+            allCourses = await CourseService.GetAllCoursesAsync();
+            filteredCourses = allCourses;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Ошибка при загрузке курсов: {ex.Message}");
+        }
     }
 
-    private async Task SearchCourses(ChangeEventArgs e)
+    private void OnSearchChanged(ChangeEventArgs e)
     {
-        var searchTerm = e.Value?.ToString() ?? string.Empty;
-        courses = string.IsNullOrWhiteSpace(searchTerm) 
-            ? allCourses 
-            : await CourseService.SearchCoursesAsync(searchTerm);
+        searchTerm = e.Value?.ToString() ?? "";
+        FilterCourses();
+    }
+
+    private void FilterCourses()
+    {
+        if (allCourses == null)
+            return;
+
+        if (string.IsNullOrWhiteSpace(searchTerm))
+        {
+            filteredCourses = allCourses;
+        }
+        else
+        {
+            var term = searchTerm.ToLower();
+            filteredCourses = allCourses
+                .Where(c => c.Title.ToLower().Contains(term) || c.Description.ToLower().Contains(term))
+                .ToList();
+        }
     }
 
     private string GetDifficultyLevel(int level) => level switch
@@ -92,3 +125,54 @@
         _ => "Неизвестно"
     };
 }
+
+<style>
+    .course-card {
+        border: 1px solid #e5e7eb;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        overflow: hidden;
+    }
+
+        .course-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 24px rgba(124, 58, 237, 0.15);
+        }
+
+    .card-img-top {
+        object-fit: cover;
+        height: 200px;
+    }
+
+    .course-meta {
+        background-color: #f9fafb;
+        padding: 0.75rem;
+        border-radius: 0.375rem;
+    }
+
+    @@media (max-width: 576px) {
+        .col-md-6, .col-lg-4 {
+            flex: 0 0 100%;
+            max-width: 100%;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+        }
+
+        .card {
+            margin-bottom: 1rem;
+        }
+    }
+
+    @@media (min-width: 577px) and (max-width: 992px) {
+        .col-md-6 {
+            flex: 0 0 50%;
+            max-width: 50%;
+        }
+
+        .col-lg-4 {
+            flex: 0 0 50%;
+            max-width: 50%;
+        }
+    }
+</style>

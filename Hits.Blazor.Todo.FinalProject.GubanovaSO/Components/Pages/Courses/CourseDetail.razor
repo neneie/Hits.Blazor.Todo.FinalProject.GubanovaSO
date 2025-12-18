@@ -8,7 +8,7 @@
 @inject NavigationManager Navigation
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
-<PageTitle>Курс - Hits.Todo</PageTitle>
+<PageTitle>Курс - Образовательная платформа</PageTitle>
 
 @if (course == null)
 {
@@ -21,7 +21,7 @@ else
 {
     <div class="container mt-4">
         <div class="row">
-            <div class="col-md-8">
+            <div class="col-lg-8 mb-4">
                 <h2>@course.Title</h2>
                 <div class="mb-3">
                     <span class="badge bg-primary">@GetDifficultyLevel(course.DifficultyLevel)</span>
@@ -51,38 +51,61 @@ else
                 }
             </div>
 
-            <div class="col-md-4">
-                <div class="card">
+            <div class="col-lg-4">
+                <div class="card sticky-card">
                     <div class="card-body">
-                        <h5>Информация</h5>
-                        <p><strong>Категория:</strong> @course.Category</p>
-                        <p><strong>Продолжительность:</strong> @course.DurationHours часов</p>
-                        <p><strong>Создан:</strong> @course.CreatedDate.ToString("dd.MM.yyyy")</p>
+                        <h5>Информация о курсе</h5>
+                        <hr />
+                        <p><strong>Категория:</strong> <br />@course.Category</p>
+                        <p><strong>Продолжительность:</strong> <br />@course.DurationHours часов</p>
+                        <p><strong>Создан:</strong> <br />@course.CreatedDate.ToString("dd.MM.yyyy")</p>
+
+                        @if (!string.IsNullOrEmpty(errorMessage))
+                        {
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                @errorMessage
+                                <button type="button" class="btn-close" @onclick="() => errorMessage = string.Empty"></button>
+                            </div>
+                        }
+
+                        @if (!string.IsNullOrEmpty(successMessage))
+                        {
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                @successMessage
+                                <button type="button" class="btn-close" @onclick="() => successMessage = string.Empty"></button>
+                            </div>
+                        }
+
+                        <hr />
 
                         <AuthorizeView>
                             <Authorized>
                                 @if (isEnrolled)
                                 {
-                                    <div class="alert alert-success mb-2">Вы уже записаны</div>
-                                    <a href="/my-learning" class="btn btn-primary w-100">Перейти к обучению</a>
+                                    <div class="alert alert-success mb-3">
+                                        <i class="oi oi-check"></i> Вы уже записаны
+                                    </div>
+                                    <a href="/my-learning" class="btn btn-primary w-100">
+                                        Перейти к обучению
+                                    </a>
                                 }
                                 else
                                 {
                                     <button class="btn btn-success w-100" @onclick="EnrollCourse" disabled="@isLoading">
                                         @if (isLoading)
                                         {
+                                            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
                                             <span>Записываю...</span>
                                         }
                                         else
                                         {
-
-                                            <span>Записаться</span>
+                                            <span>Записаться на курс</span>
                                         }
                                     </button>
                                 }
                             </Authorized>
                             <NotAuthorized>
-                                <p class="text-muted small">Войдите чтобы записаться</p>
+                                <p class="text-muted small mb-3">Войдите в систему, чтобы записаться на курс</p>
                                 <a href="/Account/Login" class="btn btn-primary w-100">Войти</a>
                             </NotAuthorized>
                         </AuthorizeView>
@@ -101,35 +124,74 @@ else
     private bool isEnrolled = false;
     private bool isLoading = false;
     private string? userId;
+    private string? errorMessage;
+    private string? successMessage;
 
     protected override async Task OnInitializedAsync()
     {
-        course = await CourseService.GetCourseByIdAsync(CourseId);
-
-        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        var user = authState.User;
-
-        if (user.Identity?.IsAuthenticated == true)
+        try
         {
-            userId = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            course = await CourseService.GetCourseByIdAsync(CourseId);
 
-            if (!string.IsNullOrEmpty(userId))
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+
+            if (user.Identity?.IsAuthenticated == true)
             {
-                var enrollment = await EnrollmentService.GetEnrollmentAsync(userId, CourseId);
-                isEnrolled = enrollment != null;
+                userId = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+                if (!string.IsNullOrEmpty(userId))
+                {
+                    var enrollment = await EnrollmentService.GetEnrollmentAsync(userId, CourseId);
+                    isEnrolled = enrollment != null;
+                }
             }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Ошибка при загрузке курса: " + ex.Message;
         }
     }
 
     private async Task EnrollCourse()
     {
         if (string.IsNullOrEmpty(userId))
+        {
+            errorMessage = "Пожалуйста, войдите в систему";
             return;
+        }
 
-        isLoading = true;
-        await EnrollmentService.EnrollUserAsync(userId, CourseId);
-        isEnrolled = true;
-        isLoading = false;
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+            successMessage = null;
+
+            var enrollmentId = await EnrollmentService.EnrollUserAsync(userId, CourseId);
+
+            if (enrollmentId > 0)
+            {
+                isEnrolled = true;
+                successMessage = "Вы успешно записались на курс!";
+                StateHasChanged();
+
+                await Task.Delay(1500);
+                Navigation.NavigateTo("/my-learning");
+            }
+            else
+            {
+                errorMessage = "Не удалось записать вас на курс. Попробуйте ещё раз.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Ошибка при записи на курс: " + ex.Message;
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
     }
 
     private string GetDifficultyLevel(int level) => level switch
@@ -140,3 +202,35 @@ else
         _ => "Неизвестно"
     };
 }
+
+<style>
+    .sticky-card {
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    @@media (max-width: 992px) {
+        .sticky-card {
+            position: static !important;
+            margin-top: 2rem;
+        }
+    }
+
+    @@media (min-width: 992px) {
+        .sticky-card {
+            position: sticky;
+            top: 20px;
+        }
+    }
+
+    @@media (max-width: 576px) {
+        .card-body {
+            padding: 1rem;
+        }
+
+        .btn-success {
+            padding: 0.75rem 1rem;
+            font-size: 0.95rem;
+        }
+    }
+</style>

@@ -1,38 +1,97 @@
 ﻿@page "/"
 
-<PageTitle>EducationPlatform - Онлайн обучение</PageTitle>
+<PageTitle>Образовательная платформа - Онлайн обучение</PageTitle>
 
 <div class="container mt-5">
     <div class="row">
         <div class="col-lg-8 mx-auto text-center">
-            <h1 class="display-4 fw-bold mb-4">Добро пожаловать в EducationPlatform!</h1>
+            <h1 class="display-4 fw-bold mb-4">Добро пожаловать в Образовательную платформу!</h1>
             <p class="lead mb-4">Платформа для онлайн обучения и развития навыков</p>
-            
+
             <AuthorizeView>
                 <NotAuthorized>
-                    <div class="d-flex gap-3 justify-content-center mb-5">
+                    <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center mb-5">
                         <a href="/Account/Login" class="btn btn-primary btn-lg">Войти</a>
                         <a href="/Account/Register" class="btn btn-success btn-lg">Регистрация</a>
                         <a href="/courses" class="btn btn-secondary btn-lg">Лекции</a>
                     </div>
                 </NotAuthorized>
                 <Authorized>
-                    <a href="/courses" class="btn btn-primary btn-lg">Перейти к лекциям</a>
+                    <a href="/courses" class="btn btn-primary btn-lg mb-5">Перейти к лекциям</a>
                 </Authorized>
             </AuthorizeView>
 
             <hr class="my-5" />
 
             <div class="row mt-5">
-                <div class="col-md-4">
-                    <h5>Качественные лекции</h5>
-                    <p>Лекции от опытных преподавателей и экспертов в своей области</p>
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100 shadow-sm feature-card">
+                        <div class="card-body">
+                            <div class="feature-icon mb-3">
+                                <i class="oi oi-book" style="font-size: 2.5rem; color: #7c3aed;"></i>
+                            </div>
+                            <h5 class="card-title">Качественные лекции</h5>
+                            <p class="card-text">Лекции от опытных преподавателей и экспертов в своей области</p>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-md-4">
-                    <h5>Достижения</h5>
-                    <p>Получайте сертификаты после завершения курсов</p>
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100 shadow-sm feature-card">
+                        <div class="card-body">
+                            <div class="feature-icon mb-3">
+                                <i class="oi oi-star" style="font-size: 2.5rem; color: #7c3aed;"></i>
+                            </div>
+                            <h5 class="card-title">Достижения</h5>
+                            <p class="card-text">Получайте сертификаты после завершения курсов</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    .feature-card {
+        border: 1px solid #e5e7eb;
+        transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+    }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 20px rgba(124, 58, 237, 0.15);
+            background-color: rgba(124, 58, 237, 0.02);
+        }
+
+    .feature-icon {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    @@media (max-width: 576px) {
+        .display-4 {
+            font-size: 2rem;
+        }
+
+        .btn-lg {
+            width: 100%;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+        }
+
+        .lead {
+            font-size: 1rem;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .d-flex.flex-sm-row {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+        }
+    }
+</style>
