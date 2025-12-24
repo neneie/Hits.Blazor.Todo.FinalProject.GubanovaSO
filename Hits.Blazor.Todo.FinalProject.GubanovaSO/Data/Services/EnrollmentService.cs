@@ -17,7 +17,6 @@ namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Data.Services
         {
             return await _context.Enrollments
                 .Include(e => e.Course)
-                .Include(e => e.UserProgresses)
                 .FirstOrDefaultAsync(e => e.UserId == userId && e.CourseId == courseId);
         }
 
@@ -25,7 +24,6 @@ namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Data.Services
         {
             return await _context.Enrollments
                 .Include(e => e.Course)
-                .Include(e => e.UserProgresses)
                 .Where(e => e.UserId == userId)
                 .OrderByDescending(e => e.EnrollmentDate)
                 .ToListAsync();
@@ -68,7 +66,6 @@ namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Data.Services
         public async Task UpdateProgressAsync(int enrollmentId)
         {
             var enrollment = await _context.Enrollments
-                .Include(e => e.UserProgresses)
                 .FirstOrDefaultAsync(e => e.Id == enrollmentId);
 
             if (enrollment != null)
@@ -77,14 +74,7 @@ namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Data.Services
                     .Where(l => l.CourseId == enrollment.CourseId)
                     .CountAsync();
 
-                if (totalLessons > 0)
-                {
-                    var completedLessons = enrollment.UserProgresses
-                        .Where(up => up.IsCompleted)
-                        .Count();
-
-                    enrollment.ProgressPercentage = (completedLessons * 100) / totalLessons;
-                }
+                
 
                 _context.Enrollments.Update(enrollment);
                 await _context.SaveChangesAsync();

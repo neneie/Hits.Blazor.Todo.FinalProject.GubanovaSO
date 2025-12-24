@@ -30,7 +30,5 @@ namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Models
 
         public bool IsPublished { get; set; } = false;
 
-        // Навигационные свойства
-        public ICollection<UserProgress> UserProgresses { get; set; } = new List<UserProgress>();
-    }
+        }
 }

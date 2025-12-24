@@ -31,9 +31,8 @@ namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Models
 
         public bool IsActive { get; set; } = true;
 
-        public ICollection<Lesson> Lessons { get; set; } = new List<Lesson>();
+        public ICollection<Lesson> Lessons { get; set; } = new  List<Lesson>();
 
-        public ICollection<Enrollment> Enrollments { get; set; } = new List<Enrollment>();
         public string Content { get; set; } = string.Empty;
 
     }

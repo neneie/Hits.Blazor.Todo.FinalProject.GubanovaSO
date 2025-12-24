@@ -13,7 +13,6 @@ namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Data
         public DbSet<Course> Courses { get; set; }
         public DbSet<Lesson> Lessons { get; set; }
         public DbSet<Enrollment> Enrollments { get; set; }
-        public DbSet<UserProgress> UserProgresses { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -23,8 +22,7 @@ namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Data
                 .HasIndex(e => new { e.UserId, e.CourseId })
                 .IsUnique();
         
-            modelBuilder.Entity<UserProgress>()
-                .HasIndex(up => new { up.UserId, up.LessonId });
+           
 
         }
     }

@@ -25,7 +25,5 @@ namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Models
         [JsonIgnore]
         public Course? Course { get; set; }
 
-        [JsonIgnore]
-        public ICollection<UserProgress>? UserProgresses { get; set; }
     }
 }

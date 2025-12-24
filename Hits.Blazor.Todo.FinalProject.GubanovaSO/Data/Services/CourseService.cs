@@ -16,14 +16,12 @@ namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Data.Services
         public async Task<List<Course>> GetAllCoursesAsync()
         {
             return await _context.Courses
-                .Include(c => c.Enrollments)
                 .ToListAsync();
         }
 
         public async Task<Course?> GetCourseByIdAsync(int id)
         {
             return await _context.Courses
-                .Include(c => c.Enrollments)
                 .FirstOrDefaultAsync(c => c.Id == id);
         }
 

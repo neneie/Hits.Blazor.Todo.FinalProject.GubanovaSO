@@ -20,20 +20,20 @@
                 <div class="col-md-6 mb-3">
                     <div class="card h-100">
                         <div class="card-body">
-                            <h5 class="card-title">Мои курсы</h5>
+                            <h5 class="card-title">Курсы</h5>
                         </div>
                         <div class="card-footer">
-                            <a class="btn btn-primary w-100" href="/my-learning">Перейти</a>
+                            <a class="btn btn-primary w-100" href="/courses">Перейти</a>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-6 mb-3">
                     <div class="card h-100">
                         <div class="card-body">
-                            <h5 class="card-title">Все курсы</h5>
+                            <h5 class="card-title">Создать курс</h5>
                         </div>
                         <div class="card-footer">
-                            <a class="btn btn-primary w-100" href="/courses">Перейти</a>
+                            <a class="btn btn-primary w-100" href="/courses/create">Создать</a>
                         </div>
                     </div>
                 </div>
@@ -77,7 +77,7 @@
         if (user.Identity?.IsAuthenticated == true)
         {
             var email = user.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value ?? "";
-            if (!string.IsNullOrEmpty(email))
+            if (!string.IsNullOrEmpty(email) && email.Contains('@'))
             {
                 userName = email.Split('@')[0];
             }
