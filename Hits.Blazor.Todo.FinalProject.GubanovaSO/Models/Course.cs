@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Models
 {
@@ -34,6 +35,8 @@ namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Models
         public ICollection<Lesson> Lessons { get; set; } = new  List<Lesson>();
 
         public string Content { get; set; } = string.Empty;
+        [JsonIgnore]
+        public ICollection<Enrollment> Enrollments { get; set; } = new List<Enrollment>();
 
     }
 }

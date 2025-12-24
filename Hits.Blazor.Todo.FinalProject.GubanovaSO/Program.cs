@@ -24,6 +24,7 @@ builder.Services.AddScoped<CourseService>();
 builder.Services.AddScoped<LessonService>();
 builder.Services.AddScoped<EnrollmentService>();
 
+
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<AuthenticationStateProvider, PersistingRevalidatingAuthenticationStateProvider>();
 builder.Services.AddScoped<IdentityUserAccessor>();

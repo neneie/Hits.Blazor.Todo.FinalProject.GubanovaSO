@@ -12,7 +12,56 @@
 <h1>Мои курсы</h1>
 
 <div class="container">
-    
+    @if (enrollments == null)
+    {
+        <p>Загрузка...</p>
+    }
+    else if (enrollments.Count == 0)
+    {
+        <div class="card">
+            <div class="card-body">
+                <p>Вы не записаны ни на один курс</p>
+            </div>
+            <div class="card-footer">
+                <a href="/courses" class="btn btn-primary">Выбрать курс</a>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="card-group">
+            @foreach (var enrollment in enrollments)
+            {
+                <div class="card">
+                    <div class="card-header">
+                        @enrollment.Course?.Title
+                    </div>
+                    <div class="card-body">
+                        <p>@enrollment.Course?.Category | @enrollment.Course?.DurationHours часов</p>
+                        <p class="text-muted small">Записаны: @enrollment.EnrollmentDate.ToString("dd.MM.yyyy")</p>
+                        <div class="mb-2">
+                            <small>Прогресс: @enrollment.ProgressPercentage%</small>
+                            <div class="progress">
+                                <div class="progress-bar" style="width: @enrollment.ProgressPercentage%"></div>
+                            </div>
+                        </div>
+                        @if (enrollment.IsCompleted)
+                        {
+                            <span class="badge bg-success">Завершено</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-warning">В процессе</span>
+                        }
+                    </div>
+                    <div class="card-footer">
+                        <a href="/courses/@enrollment.Course?.Id" class="btn btn-primary">Перейти</a>
+                        <button class="btn btn-danger" @onclick="async () => await RemoveEnrollment(enrollment.Id)">Отписаться</button>
+                    </div>
+                </div>
+            }
+        </div>
+    }
 
     <div class="mt-4">
         <a href="/courses" class="btn btn-primary">Выбрать еще курсы</a>
@@ -20,6 +69,7 @@
 </div>
 
 @code {
+    private List<Enrollment>? enrollments;
     private string? userId;
 
     protected override async Task OnInitializedAsync()
@@ -31,6 +81,19 @@
         {
             userId = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 
+            if (!string.IsNullOrEmpty(userId))
+            {
+                enrollments = await EnrollmentService.GetUserEnrollmentsAsync(userId);
+            }
+        }
+    }
+
+    private async Task RemoveEnrollment(int enrollmentId)
+    {
+        await EnrollmentService.DeleteEnrollmentAsync(enrollmentId);
+        if (!string.IsNullOrEmpty(userId))
+        {
+            enrollments = await EnrollmentService.GetUserEnrollmentsAsync(userId);
         }
     }
 }

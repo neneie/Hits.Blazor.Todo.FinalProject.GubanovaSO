@@ -31,21 +31,10 @@ namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Data.Services
 
         public async Task<int> EnrollUserAsync(string userId, int courseId)
         {
-            if (string.IsNullOrEmpty(userId))
-            {
-                throw new ArgumentException("Идентификатор пользователя не может быть пустым");
-            }
-
             var existingEnrollment = await GetEnrollmentAsync(userId, courseId);
             if (existingEnrollment != null)
             {
                 return existingEnrollment.Id;
-            }
-
-            var course = await _context.Courses.FindAsync(courseId);
-            if (course == null)
-            {
-                throw new ArgumentException("Курс не найден");
             }
 
             var enrollment = new Enrollment
@@ -63,38 +52,6 @@ namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Data.Services
             return enrollment.Id;
         }
 
-        public async Task UpdateProgressAsync(int enrollmentId)
-        {
-            var enrollment = await _context.Enrollments
-                .FirstOrDefaultAsync(e => e.Id == enrollmentId);
-
-            if (enrollment != null)
-            {
-                var totalLessons = await _context.Lessons
-                    .Where(l => l.CourseId == enrollment.CourseId)
-                    .CountAsync();
-
-                
-
-                _context.Enrollments.Update(enrollment);
-                await _context.SaveChangesAsync();
-            }
-        }
-
-        public async Task CompleteEnrollmentAsync(int enrollmentId)
-        {
-            var enrollment = await _context.Enrollments.FindAsync(enrollmentId);
-            if (enrollment != null)
-            {
-                enrollment.IsCompleted = true;
-                enrollment.CompletionDate = DateTime.UtcNow;
-                enrollment.ProgressPercentage = 100;
-
-                _context.Enrollments.Update(enrollment);
-                await _context.SaveChangesAsync();
-            }
-        }
-
         public async Task<bool> DeleteEnrollmentAsync(int enrollmentId)
         {
             var enrollment = await _context.Enrollments.FindAsync(enrollmentId);
@@ -105,13 +62,6 @@ namespace Hits.Blazor.Todo.FinalProject.GubanovaSO.Data.Services
                 return true;
             }
             return false;
-        }
-
-        public async Task<int> GetEnrollmentCountAsync(int courseId)
-        {
-            return await _context.Enrollments
-                .Where(e => e.CourseId == courseId)
-                .CountAsync();
         }
     }
 }

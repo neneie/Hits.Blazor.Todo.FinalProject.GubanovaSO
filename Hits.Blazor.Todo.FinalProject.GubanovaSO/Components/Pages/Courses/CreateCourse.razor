@@ -13,9 +13,7 @@
 @if (CourseItem != null)
 {
     <EditForm Model="CourseItem" OnValidSubmit="ValidSubmit" FormName="courseForm">
-
         <DataAnnotationsValidator />
-        <ValidationSummary />
 
         <h3>@(Id == 0 ? "Новый курс" : "Редактировать курс")</h3>
 
@@ -24,41 +22,41 @@
         <div class="form-group">
             <label>Название</label>
             <InputText @bind-Value="CourseItem.Title" class="form-control" />
-            <ValidationMessage For="() => CourseItem.Title" />
+            <ValidationMessage For="() => CourseItem.Title" class="text-danger" />
         </div>
 
         <div class="form-group">
             <label>Описание</label>
             <InputTextArea @bind-Value="CourseItem.Description" class="form-control" rows="3" />
-            <ValidationMessage For="() => CourseItem.Description" />
+            <ValidationMessage For="() => CourseItem.Description" class="text-danger" />
         </div>
 
         <div class="form-group">
             <label>Содержание курса</label>
             <InputTextArea @bind-Value="CourseItem.Content" class="form-control" rows="8" />
-            <ValidationMessage For="() => CourseItem.Content" />
+            <ValidationMessage For="() => CourseItem.Content" class="text-danger" />
         </div>
 
         <div class="form-group">
             <label>Категория</label>
             <InputText @bind-Value="CourseItem.Category" class="form-control" />
-            <ValidationMessage For="() => CourseItem.Category" />
+            <ValidationMessage For="() => CourseItem.Category" class="text-danger" />
         </div>
 
         <div class="form-group">
             <label>Часов (1–1000)</label>
-            <InputNumber @bind-Value="CourseItem.DurationHours" class="form-control" />
-            <ValidationMessage For="() => CourseItem.DurationHours" />
+            <InputNumber @bind-Value="CourseItem.DurationHours" class="form-control" min="1" max="1000" />
+            <ValidationMessage For="() => CourseItem.DurationHours" class="text-danger" />
         </div>
 
         <div class="form-group">
             <label>Уровень (1–3)</label>
-            <InputNumber @bind-Value="CourseItem.DifficultyLevel" class="form-control" />
-            <ValidationMessage For="() => CourseItem.DifficultyLevel" />
+            <InputNumber @bind-Value="CourseItem.DifficultyLevel" class="form-control" min="1" max="3" />
+            <ValidationMessage For="() => CourseItem.DifficultyLevel" class="text-danger" />
         </div>
 
-        <button class="btn btn-primary" type="submit">Сохранить</button>
-        <a class="btn btn-secondary" href="/courses">Отмена</a>
+        <button class="btn btn-primary m-2" type="submit">Сохранить</button>
+        <a class="btn btn-primary m-2" href="/courses">Отмена</a>
     </EditForm>
 
 }
@@ -75,7 +73,7 @@
         await base.OnInitializedAsync();
 
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        var userId = authState.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "";
+        var userId = authState.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "unknown";
 
         if (CourseItem == null)
         {
@@ -84,7 +82,8 @@
                 CreatedDate = DateTime.UtcNow,
                 InstructorId = userId,
                 DurationHours = 1,
-                DifficultyLevel = 1
+                DifficultyLevel = 1,
+                IsActive = true
             };
 
             if (Id != 0)
@@ -92,15 +91,20 @@
                 var course = await courseService.GetCourseByIdAsync(Id);
                 if (course != null)
                 {
-                    CourseItem.Id = course.Id;
-                    CourseItem.Title = course.Title;
-                    CourseItem.Description = course.Description;
-                    CourseItem.Content = course.Content;
-                    CourseItem.Category = course.Category;
-                    CourseItem.DurationHours = course.DurationHours;
-                    CourseItem.DifficultyLevel = course.DifficultyLevel;
-                    CourseItem.CreatedDate = course.CreatedDate;
-                    CourseItem.InstructorId = course.InstructorId;
+                    CourseItem = new Course
+                    {
+                        Id = course.Id,
+                        Title = course.Title,
+                        Description = course.Description,
+                        Content = course.Content,
+                        Category = course.Category,
+                        DurationHours = course.DurationHours,
+                        DifficultyLevel = course.DifficultyLevel,
+                        CreatedDate = course.CreatedDate,
+                        UpdatedDate = course.UpdatedDate,
+                        InstructorId = course.InstructorId,
+                        IsActive = course.IsActive
+                    };
                 }
             }
         }
@@ -108,23 +112,31 @@
 
     async Task ValidSubmit()
     {
-        if (CourseItem != null)
+        if (CourseItem == null) return;
+
+        try
         {
             var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-            var userId = authState.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "";
+            var userId = authState.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "unknown";
 
             if (Id == 0)
             {
                 CourseItem.CreatedDate = DateTime.UtcNow;
                 CourseItem.InstructorId = userId;
+                CourseItem.IsActive = true;
                 await courseService.CreateCourseAsync(CourseItem);
             }
             else
             {
                 CourseItem.UpdatedDate = DateTime.UtcNow;
+                CourseItem.InstructorId = userId;
                 await courseService.UpdateCourseAsync(CourseItem);
             }
             navigate.NavigateTo("/courses");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Ошибка: {ex.Message}");
         }
     }
 }
