@@ -7,165 +7,127 @@
 @inject NavigationManager Navigation
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
-<PageTitle>@(course?.Title ?? "Курс") - Образовательная платформа</PageTitle>
-
-@if (course == null)
-{
-    <div class="container mt-4">
-        <div class="alert alert-danger">Курс не найден</div>
-        <a href="/courses" class="btn btn-primary">Вернуться</a>
-    </div>
-}
-else
-{
-    <div class="container mt-4">
+<div class="container mt-4">
+    @if (course == null)
+    {
+        <p>Загрузка...</p>
+    }
+    else
+    {
         <div class="row">
-            <div class="col-lg-8">
-                <h2>@course.Title</h2>
-                <p class="text-muted">@course.Category | @course.DurationHours часов | Уровень: @course.DifficultyLevel</p>
+            <div class="col-md-8">
+                <h1>@course.Title</h1>
+                <p class="text-muted">
+                    <strong>Категория:</strong> @course.Category |
+                    <strong>Часов:</strong> @course.DurationHours |
+                    <strong>Уровень:</strong> @course.DifficultyLevel
+                </p>
 
-                <h4 class="mt-4">Описание</h4>
+                <h3>Описание</h3>
                 <p>@course.Description</p>
 
-                <h4 class="mt-4">Содержание курса</h4>
-                @if (string.IsNullOrWhiteSpace(course.Content))
+                <h3>Полное содержание</h3>
+                @if (!string.IsNullOrEmpty(course.Content))
                 {
-                    <p class="text-muted">Содержание не заполнено</p>
+                    <p>@course.Content</p>
                 }
                 else
                 {
-                    <div class="card">
-                        <div class="card-body">
-                            @((MarkupString)course.Content.Replace("\n", "<br />"))
-                        </div>
-                    </div>
+                    <p class="text-muted">Содержание не заполнено</p>
                 }
             </div>
 
-            <div class="col-lg-4">
+            <div class="col-md-4">
                 <div class="card">
-                    <div class="card-header">
-                        Информация
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Действия</h5>
                     </div>
                     <div class="card-body">
-                        <p><strong>Категория:</strong> @course.Category</p>
-                        <p><strong>Часов:</strong> @course.DurationHours</p>
-                        <p><strong>Уровень сложности:</strong> @course.DifficultyLevel</p>
-                    </div>
-                    <div class="card-footer">
-                        @if (errorMessage != null)
-                        {
-                            <div class="alert alert-danger alert-sm">@errorMessage</div>
-                        }
-
                         <AuthorizeView>
                             <Authorized>
-                                @if (isEnrolled)
+                                @if (!isEnrolled)
                                 {
-                                    <button class="btn btn-primary w-100" disabled>Вы уже записаны</button>
+                                    <button class="btn btn-success w-100 mb-2" @onclick="EnrollCourse">
+                                        Записаться
+                                    </button>
                                 }
                                 else
                                 {
-                                    <button class="btn btn-success w-100" @onclick="EnrollCourse" disabled="@isLoading">
-                                        @if (isLoading)
-                                        {
-                                            <span>Записываю...</span>
-                                        }
-                                        else
-                                        {
-
-                                            <span>Записаться</span>
-                                        }
+                                    <button class="btn btn-danger w-100 mb-2" @onclick="UnrollCourse">
+                                        Отписаться
                                     </button>
+                                    <div class="alert alert-info">
+                                        <strong>Прогресс:</strong> @progressPercentage%
+                                    </div>
                                 }
                             </Authorized>
                             <NotAuthorized>
-                                <a href="/Account/Login" class="btn btn-primary w-100">Войти, чтобы записаться</a>
+                                <p class="alert alert-warning">
+                                    Для записи на курс <a href="/login">войдите в аккаунт</a>
+                                </p>
                             </NotAuthorized>
                         </AuthorizeView>
+
+                        <hr />
+
+                        <a class="btn btn-secondary w-100" href="/courses">Вернуться к курсам</a>
                     </div>
                 </div>
             </div>
         </div>
-
-        <div class="mt-4">
-            <a href="/courses" class="btn btn-primary">Вернуться к курсам</a>
-        </div>
-    </div>
-}
+    }
+</div>
 
 @code {
     [Parameter]
     public int CourseId { get; set; }
 
-    private Course? course;
-    private bool isEnrolled = false;
-    private bool isLoading = false;
-    private string? userId;
-    private string? errorMessage;
+    Course? course;
+    bool isEnrolled = false;
+    int progressPercentage = 0;
+    Enrollment? currentEnrollment;
 
     protected override async Task OnInitializedAsync()
     {
-        try
+        await base.OnInitializedAsync();
+        course = await CourseService.GetCourseByIdAsync(CourseId);
+
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        if (authState.User.Identity?.IsAuthenticated == true)
         {
-            course = await CourseService.GetCourseByIdAsync(CourseId);
-
-            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-            var user = authState.User;
-
-            if (user.Identity?.IsAuthenticated == true)
+            var userId = authState.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (!string.IsNullOrEmpty(userId))
             {
-                userId = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-
-                if (!string.IsNullOrEmpty(userId) && course != null)
+                currentEnrollment = await EnrollmentService.GetEnrollmentAsync(userId, CourseId);
+                if (currentEnrollment != null)
                 {
-                    var enrollment = await EnrollmentService.GetEnrollmentAsync(userId, CourseId);
-                    isEnrolled = enrollment != null;
+                    isEnrolled = true;
+                    progressPercentage = currentEnrollment.ProgressPercentage;
                 }
             }
         }
-        catch (Exception ex)
+    }
+
+    async Task EnrollCourse()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var userId = authState.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+        if (!string.IsNullOrEmpty(userId))
         {
-            errorMessage = "Ошибка: " + ex.Message;
+            await EnrollmentService.EnrollUserAsync(userId, CourseId);
+            isEnrolled = true;
+            currentEnrollment = await EnrollmentService.GetEnrollmentAsync(userId, CourseId);
         }
     }
 
-    private async Task EnrollCourse()
+    async Task UnrollCourse()
     {
-        if (string.IsNullOrEmpty(userId))
-        {
-            errorMessage = "Войдите в систему";
-            return;
-        }
+        if (currentEnrollment == null) return;
 
-        try
-        {
-            isLoading = true;
-            errorMessage = null;
-            StateHasChanged();
-
-            var enrollmentId = await EnrollmentService.EnrollUserAsync(userId, CourseId);
-
-            if (enrollmentId > 0)
-            {
-                isEnrolled = true;
-                StateHasChanged();
-
-                await Task.Delay(1000);
-                Navigation.NavigateTo("/my-learning");
-            }
-            else
-            {
-                errorMessage = "Ошибка при записи";
-            }
-        }
-        catch (Exception ex)
-        {
-            errorMessage = "Ошибка: " + ex.Message;
-        }
-        finally
-        {
-            isLoading = false;
-        }
+        await EnrollmentService.DeleteEnrollmentAsync(currentEnrollment.Id);
+        isEnrolled = false;
+        progressPercentage = 0;
+        currentEnrollment = null;
     }
 }

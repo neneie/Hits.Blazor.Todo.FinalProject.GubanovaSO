@@ -1,5 +1,4 @@
-﻿﻿
-@page "/courses"
+﻿@page "/courses"
 @using Hits.Blazor.Todo.FinalProject.GubanovaSO.Models
 @using Hits.Blazor.Todo.FinalProject.GubanovaSO.Data.Services
 @inject CourseService courseService
@@ -7,42 +6,58 @@
 
 <PageTitle>Курсы</PageTitle>
 
-<h1>Курсы</h1>
+<div class="container mt-4">
+    <h1 class="mb-4">Курсы</h1>
 
-<div class="container">
     @if (courses == null)
     {
-        <p>Loading ...</p>
+        <p>Загрузка...</p>
     }
     else
     {
         <AuthorizeView>
             <Authorized>
-                <div class="btn-group m-2">
-                    <button class="btn btn-primary" @onclick="AddCourse">Новый курс</button>
+                <div class="mb-3">
+                    <button class="btn btn-success" @onclick="AddCourse">+ Новый курс</button>
                 </div>
             </Authorized>
         </AuthorizeView>
 
-        <div class="card-group">
+        <div class="mb-3">
+            <label class="form-label">Сортировка:</label>
+            <select class="form-select" @onchange="@((ChangeEventArgs e) => SortCourses(e))">
+                <option value="default">По умолчанию</option>
+                <option value="difficulty">По уровню сложности</option>
+                <option value="duration">По часам</option>
+                <option value="title">По названию</option>
+            </select>
+        </div>
+
+        <div class="row">
             @foreach (var course in courses)
             {
-                <div class="card">
-                    <div class="card-header">
-                        @course.Title
-                    </div>
-                    <div class="card-body">
-                        <p>@course.Description</p>
-                        <p class="text-muted small">@course.Category | @course.DurationHours часов</p>
-                    </div>
-                    <div class="card-footer">
-                        <a class="btn btn-primary" href="courses/@course.Id">Подробнее</a>
-                        <AuthorizeView>
-                            <Authorized>
-                                <a class="btn btn-primary" href="courses/edit/@course.Id">Изменить</a>
-                                <button class="btn btn-danger" @onclick="async () => await DeleteCourse(course.Id)">Удалить</button>
-                            </Authorized>
-                        </AuthorizeView>
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="card-title mb-0">@course.Title</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">@course.Description</p>
+                            <small class="text-muted">
+                                <strong>Категория:</strong> @course.Category<br />
+                                <strong>Часов:</strong> @course.DurationHours<br />
+                                <strong>Уровень:</strong> @course.DifficultyLevel
+                            </small>
+                        </div>
+                        <div class="card-footer bg-light">
+                            <a class="btn btn-primary btn-sm" href="/courses/@course.Id">Подробнее</a>
+                            <AuthorizeView>
+                                <Authorized>
+                                    <a class="btn btn-warning btn-sm" href="/courses/edit/@course.Id">Изменить</a>
+                                    <button class="btn btn-danger btn-sm" @onclick="async () => await DeleteCourse(course.Id)">Удалить</button>
+                                </Authorized>
+                            </AuthorizeView>
+                        </div>
                     </div>
                 </div>
             }
@@ -52,21 +67,42 @@
 
 @code {
     List<Course>? courses;
+    List<Course>? allCourses;
+    string sortBy = "default";
 
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
-        courses = await courseService.GetAllCoursesAsync();
+        allCourses = await courseService.GetAllCoursesAsync();
+        courses = allCourses;
     }
 
     void AddCourse()
     {
-        navigate.NavigateTo("courses/create");
+        navigate.NavigateTo("/courses/create");
     }
 
     async Task DeleteCourse(int id)
     {
         await courseService.DeleteCourseAsync(id);
-        courses = await courseService.GetAllCoursesAsync();
+        allCourses = await courseService.GetAllCoursesAsync();
+        ApplySorting();
+    }
+
+    void SortCourses(ChangeEventArgs e)
+    {
+        sortBy = e.Value?.ToString() ?? "default";
+        ApplySorting();
+    }
+
+    void ApplySorting()
+    {
+        courses = sortBy switch
+        {
+            "difficulty" => allCourses?.OrderBy(c => c.DifficultyLevel).ToList(),
+            "duration" => allCourses?.OrderByDescending(c => c.DurationHours).ToList(),
+            "title" => allCourses?.OrderBy(c => c.Title).ToList(),
+            _ => allCourses?.ToList()
+        };
     }
 }

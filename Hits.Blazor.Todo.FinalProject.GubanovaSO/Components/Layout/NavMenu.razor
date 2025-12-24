@@ -1,86 +1,53 @@
-﻿@implements IDisposable
-
-@inject NavigationManager NavigationManager
-
-<div class="top-row ps-3 navbar navbar-dark">
+﻿<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="">Образовательная платформа</a>
+        <a class="navbar-brand" href="">Coursera</a>
+        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
     </div>
 </div>
 
-<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
-
-<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
-    <nav class="nav flex-column">
+<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
+    <nav class="flex-column">
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Главная
+                <span class="oi oi-home" aria-hidden="true"></span> Главная
             </NavLink>
         </div>
-
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="courses">
-                <span class="bi bi-book-fill-nav-menu" aria-hidden="true"></span> Курсы
+                <span class="oi oi-list" aria-hidden="true"></span> Курсы
             </NavLink>
         </div>
-
         <AuthorizeView>
             <Authorized>
                 <div class="nav-item px-3">
                     <NavLink class="nav-link" href="my-learning">
-                        <span class="bi bi-journal-check-nav-menu" aria-hidden="true"></span> Мои курсы
+                        <span class="oi oi-book" aria-hidden="true"></span> Мои курсы
                     </NavLink>
                 </div>
-
                 <div class="nav-item px-3">
                     <NavLink class="nav-link" href="courses/create">
-                        <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Создать курс
+                        <span class="oi oi-plus" aria-hidden="true"></span> Создать курс
                     </NavLink>
                 </div>
-
                 <div class="nav-item px-3">
-                    <form action="Account/Logout" method="post" class="nav-form">
-                        <AntiforgeryToken />
-                        <input type="hidden" name="ReturnUrl" value="@currentUrl" />
-                        <button type="submit" class="nav-link">
-                            <span class="bi bi-arrow-bar-left-nav-menu" aria-hidden="true"></span> Выход
-                        </button>
-                    </form>
+                    <NavLink class="nav-link" href="Account/Manage">
+                        <span class="oi oi-person" aria-hidden="true"></span> Профиль
+                    </NavLink>
                 </div>
             </Authorized>
-            <NotAuthorized>
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="Account/Register">
-                        <span class="bi bi-person-nav-menu" aria-hidden="true"></span> Регистрация
-                    </NavLink>
-                </div>
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="Account/Login">
-                        <span class="bi bi-person-badge-nav-menu" aria-hidden="true"></span> Вход
-                    </NavLink>
-                </div>
-            </NotAuthorized>
         </AuthorizeView>
     </nav>
 </div>
 
 @code {
-    private string? currentUrl;
+    private bool collapseNavMenu = true;
 
-    protected override void OnInitialized()
-    {
-        currentUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
-        NavigationManager.LocationChanged += OnLocationChanged;
-    }
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
-    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    private void ToggleNavMenu()
     {
-        currentUrl = NavigationManager.ToBaseRelativePath(e.Location);
-        StateHasChanged();
-    }
-
-    public void Dispose()
-    {
-        NavigationManager.LocationChanged -= OnLocationChanged;
+        collapseNavMenu = !collapseNavMenu;
     }
 }

@@ -1,99 +1,92 @@
 ﻿@page "/my-learning"
-@attribute [Authorize]
 @using Hits.Blazor.Todo.FinalProject.GubanovaSO.Models
 @using Hits.Blazor.Todo.FinalProject.GubanovaSO.Data.Services
 @using Microsoft.AspNetCore.Components.Authorization
-@inject EnrollmentService EnrollmentService
-@inject NavigationManager Navigation
-@inject AuthenticationStateProvider AuthenticationStateProvider
+@attribute [Microsoft.AspNetCore.Authorization.Authorize]
+@inject EnrollmentService enrollmentService
+@inject NavigationManager navigate
+@inject AuthenticationStateProvider authProvider
 
-<PageTitle>Мои курсы - Образовательная платформа</PageTitle>
+<PageTitle>Мои курсы</PageTitle>
 
-<h1>Мои курсы</h1>
+<div class="container mt-4">
+    <h1 class="mb-4">Мои курсы</h1>
 
-<div class="container">
     @if (enrollments == null)
     {
-        <p>Загрузка...</p>
+        <p>Загрузка курсов...</p>
     }
     else if (enrollments.Count == 0)
     {
-        <div class="card">
-            <div class="card-body">
-                <p>Вы не записаны ни на один курс</p>
-            </div>
-            <div class="card-footer">
-                <a href="/courses" class="btn btn-primary">Выбрать курс</a>
-            </div>
+        <div class="alert alert-info">
+            <p>У тебя ещё нет записей на курсы.</p>
+            <a href="/courses" class="btn btn-primary">Перейти к курсам</a>
         </div>
     }
     else
     {
-        <div class="card-group">
+        <div class="row">
             @foreach (var enrollment in enrollments)
             {
-                <div class="card">
-                    <div class="card-header">
-                        @enrollment.Course?.Title
-                    </div>
-                    <div class="card-body">
-                        <p>@enrollment.Course?.Category | @enrollment.Course?.DurationHours часов</p>
-                        <p class="text-muted small">Записаны: @enrollment.EnrollmentDate.ToString("dd.MM.yyyy")</p>
-                        <div class="mb-2">
-                            <small>Прогресс: @enrollment.ProgressPercentage%</small>
-                            <div class="progress">
-                                <div class="progress-bar" style="width: @enrollment.ProgressPercentage%"></div>
-                            </div>
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="card-title mb-0">@enrollment.Course?.Title</h5>
                         </div>
-                        @if (enrollment.IsCompleted)
-                        {
-                            <span class="badge bg-success">Завершено</span>
-                        }
-                        else
-                        {
-                            <span class="badge bg-warning">В процессе</span>
-                        }
-                    </div>
-                    <div class="card-footer">
-                        <a href="/courses/@enrollment.Course?.Id" class="btn btn-primary">Перейти</a>
-                        <button class="btn btn-danger" @onclick="async () => await RemoveEnrollment(enrollment.Id)">Отписаться</button>
+                        <div class="card-body">
+                            <p class="card-text">@enrollment.Course?.Description</p>
+                            <div class="mb-3">
+                                <strong>Прогресс:</strong>
+                                <div class="progress">
+                                    <div class="progress-bar bg-success" role="progressbar"
+                                         style="width: @enrollment.ProgressPercentage%"
+                                         aria-valuenow="@enrollment.ProgressPercentage"
+                                         aria-valuemin="0" aria-valuemax="100">
+                                        @enrollment.ProgressPercentage%
+                                    </div>
+                                </div>
+                            </div>
+                            <small class="text-muted">
+                                <strong>Записан:</strong> @enrollment.EnrollmentDate.ToShortDateString()<br />
+                                <strong>Статус:</strong> @(enrollment.IsCompleted ? "Завершён" : "В процессе")
+                            </small>
+                        </div>
+                        <div class="card-footer bg-light">
+                            <a href="/courses/@enrollment.CourseId" class="btn btn-primary btn-sm">Открыть курс</a>
+                            <button class="btn btn-danger btn-sm" @onclick="async () => await UnrollCourse(enrollment.Id)">Отписаться</button>
+                        </div>
                     </div>
                 </div>
             }
         </div>
     }
-
-    <div class="mt-4">
-        <a href="/courses" class="btn btn-primary">Выбрать еще курсы</a>
-    </div>
 </div>
 
 @code {
-    private List<Enrollment>? enrollments;
-    private string? userId;
+    List<Enrollment>? enrollments;
 
     protected override async Task OnInitializedAsync()
     {
-        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        var user = authState.User;
+        await base.OnInitializedAsync();
 
-        if (user.Identity?.IsAuthenticated == true)
+        var authState = await authProvider.GetAuthenticationStateAsync();
+        var userId = authState.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+        if (!string.IsNullOrEmpty(userId))
         {
-            userId = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-
-            if (!string.IsNullOrEmpty(userId))
-            {
-                enrollments = await EnrollmentService.GetUserEnrollmentsAsync(userId);
-            }
+            enrollments = await enrollmentService.GetUserEnrollmentsAsync(userId);
+        }
+        else
+        {
+            navigate.NavigateTo("/login");
         }
     }
 
-    private async Task RemoveEnrollment(int enrollmentId)
+    async Task UnrollCourse(int enrollmentId)
     {
-        await EnrollmentService.DeleteEnrollmentAsync(enrollmentId);
-        if (!string.IsNullOrEmpty(userId))
-        {
-            enrollments = await EnrollmentService.GetUserEnrollmentsAsync(userId);
-        }
+        if (enrollments == null) return;
+
+        await enrollmentService.DeleteEnrollmentAsync(enrollmentId);
+        enrollments.RemoveAll(e => e.Id == enrollmentId);
     }
 }
